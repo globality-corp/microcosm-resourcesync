@@ -13,60 +13,65 @@ and merging well.
 
 ## Usage
 
-The main usage is:
+The main usage is synchronizes from an `origin` endpoint to a `destination` endpoint:
 
     resource-sync <origin> <destination>
 
-Where `origin` and `destination` define an endpoint using one of:
+Where endpoints may be any of the following:
 
- -  HTTP
- -  a YAML file
- - a directory tree
- - `-` for `stdin`/`stdout`
-
-Resource processing always needs two basic inputs:
-
- 1. The output encoding format (e.g. YAML or JSON)
-
-    The output format will default based on the destination endpoint type, but `--json` or `--yaml` can always
-    be used to select a specific encoding format.
-
-    Note also that the input format is derived from the input type or data.
-
- 2. The resource schema model
-
-    The resource is expected to define a set of common attributes (see `Assumptions`, below). The default behavior
-    is to use [HAL JSON](http://stateless.co/hal_specification.html) to encode some of these attributes in hypertext,
-    but a simpler schema is possible using `--simple` (vs `--hal`).
+ -  An HTTP(s) URL
+ -  A YAML file
+ -  A directory path
+ -  The literal `-` (for `stdin`/`stdout`)
 
 
-## Main Use Cases
+## Formatting
 
- 1. Pull data from an HTTP endpoint to a local directory:
+Resources are assumed to be formatted as either JSON or YAML.
 
-        resource-sync https://example.com/foo /path/to/local/data
+Origin endpoints define their own format and destination endpoints define a *default* format; the latter can be
+overridden on the command line using `--json` or `--yaml`.
 
-    The HTTP response may contain multiple resources (especially for endpoints implementing the microcosm
-    [Search](https://github.com/globality-corp/microcosm-flask/blob/develop/microcosm_flask/operations.py#L33)
-    convention or some other form of pagination). Similarly, the `--follow/--no-follow` flags can be used to
-    control whether `resource-sync` traverses hypertext ("links") present in the HTTP response and pulls
-    further resources.
 
-    Each resource captured from the HTTP endpoint will be saved into its own file within the directory tree,
-    using type-specific sub-directories. By default, each resource will be stored as YAML (for better human
-    readability), though JSON may be used instead via the `--json` flag.
+## Representation
 
-    For directory trees that live in version control, the `--rm` flag can be used to first remove all existing
-    data before syncronizing, thereby creating a full diff.
+Each resources is expected to define a minimal set of attributes. (See also `Assumptions`, below).
 
- 2. Push data from a local directory to an HTTP (base) url:
+In order to extract these attributes from the resource data (after formatting), a schema needs to be applied. The
+default behavior assumes that resources use [HAL JSON](http://stateless.co/hal_specification.html) to define
+hypertext. An alternate, simple schema can also be selected using `--simple` (vs `--hal`).
 
-        resource-sync /path/to/local/data https://example.com
 
-    In this case, `resource-sync` will push the local resource(s) to the remote server.
+## Capturing Data
 
-    If the resources define dependency relationships, a *topological* sort will be used to ensure that resources
-    are pushed in the correct order (e.g. assuming a remote server with no prior content).
+A common use case is pull data from an HTTP endpoint to a local directory:
+
+    resource-sync https://example.com/foo /path/to/local/data
+
+The HTTP response may contain multiple resources (especially for endpoints implementing the microcosm
+[Search](https://github.com/globality-corp/microcosm-flask/blob/develop/microcosm_flask/operations.py#L33)
+convention or some other form of pagination). Similarly, the `--follow/--no-follow` flags can be used to
+control whether `resource-sync` traverses hypertext ("links") present in the HTTP response and pulls
+further resources.
+
+Each resource captured from the HTTP endpoint will be saved into its own file within the directory tree,
+using type-specific sub-directories. By default, each resource will be stored as YAML (for better human
+readability), though JSON may be used instead via the `--json` flag.
+
+For directory trees that live in version control, the `--rm` flag can be used to first remove all existing
+data before syncronizing, thereby creating a full diff.
+
+
+## Replaying Data
+
+Another common use case is push data from a local directory to an HTTP endpoint:
+
+    resource-sync /path/to/local/data https://example.com
+
+In this case, `resource-sync` will push the local resource(s) to the remote server.
+
+If the resources define dependency relationships, a *topological* sort will be used to ensure that resources
+are pushed in the correct order (e.g. assuming a remote server with no prior content).
 
 
 ## Assumptions
