@@ -16,6 +16,7 @@ setup(
     zip_safe=False,
     keywords="microcosm",
     install_requires=[
+        "click>=6.7",
         "enum34>=1.1.6",
         "PyYAML>=3.12",
         "requests>=2.13.0",
@@ -27,7 +28,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "resource-sybnc = microcosm_resourcesync.main:main",
+            "resource-sync = microcosm_resourcesync.main:main",
         ],
     },
     tests_require=[
