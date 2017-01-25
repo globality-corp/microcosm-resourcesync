@@ -5,7 +5,6 @@ Command line entry points.
 from click import (
     argument,
     BadParameter,
-    Choice,
     command,
     echo,
     option,
@@ -63,7 +62,7 @@ def main(context,
     echo("Synchronizing resources from: {} to: {}".format(
         origin,
         destination,
-    ))
+    ), err=True)
 
     for resources in origin.read(resource_cls, follow=follow):
         # XXX batching, deduplication, sorting
