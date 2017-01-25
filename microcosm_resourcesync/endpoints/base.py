@@ -19,7 +19,7 @@ class Endpoint(object):
         return Formatters.YAML.name
 
     @abstractmethod
-    def read(self, resource_cls, **kwargs):
+    def read(self, schema_cls, **kwargs):
         """
         Generate resource lists of the given class.
 
@@ -34,7 +34,7 @@ class Endpoint(object):
         """
         pass
 
-    def validate_for_read(self, resource_cls, **kwargs):
+    def validate_for_read(self, schema_cls, **kwargs):
         """
         Validate that reading is possible.
 

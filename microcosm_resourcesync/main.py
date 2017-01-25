@@ -13,7 +13,7 @@ from click import (
 
 from microcosm_resourcesync.endpoints import endpoint_for
 from microcosm_resourcesync.formatters import Formatters
-from microcosm_resourcesync.resources import Resources
+from microcosm_resourcesync.schemas import Schemas
 
 
 def validate_endpoint(context, param, value):
@@ -27,8 +27,8 @@ def validate_endpoint(context, param, value):
 @pass_context
 @option("--json", "-j", "formatter", flag_value=Formatters.JSON.name, help="Use json output")
 @option("--yaml", "-y", "formatter", flag_value=Formatters.YAML.name, help="Use yaml output")
-@option("--hal", "resource_type", flag_value=Resources.HAL.name, help="Use HAL JSON resources (default)")
-@option("--simple", "resource_type", flag_value=Resources.SIMPLE.name, help="Use Simple JSON resources")
+@option("--hal", "resource_type", flag_value=Schemas.HAL.name, help="Use HAL JSON schema (default)")
+@option("--simple", "resource_type", flag_value=Schemas.SIMPLE.name, help="Use Simple JSON schema")
 @option("--rm", "remove", is_flag=True)
 @option("--follow", is_flag=True)
 @argument("origin", callback=validate_endpoint)
@@ -47,11 +47,11 @@ def main(context,
     if origin == destination:
         context.fail("origin and destination may not be the same")
 
-    resource_cls = Resources[resource_type or Resources.HAL.name].value
+    schema_cls = Schemas[resource_type or Schemas.HAL.name].value
     formatter = Formatters[formatter or destination.default_formatter]
 
     origin.validate_for_read(
-        resource_cls,
+        schema_cls,
         follow=follow,
     )
     destination.validate_for_write(
@@ -64,7 +64,7 @@ def main(context,
         destination,
     ), err=True)
 
-    for resources in origin.read(resource_cls, follow=follow):
+    for resources in origin.read(schema_cls, follow=follow):
         # XXX batching, deduplication, sorting
         destination.write(
             resources,

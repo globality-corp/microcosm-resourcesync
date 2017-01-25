@@ -20,11 +20,11 @@ class PipeEndpoint(Endpoint):
         # NB: allows origin to equal destination
         return False
 
-    def read(self, resource_cls, **kwargs):
+    def read(self, schema_cls, **kwargs):
         raw_resources = safe_load_all(stdin)
 
         for raw_resource in raw_resources:
-            yield [resource_cls(raw_resource)]
+            yield [schema_cls(raw_resource)]
 
     def write(self, resources, formatter, **kwargs):
         """

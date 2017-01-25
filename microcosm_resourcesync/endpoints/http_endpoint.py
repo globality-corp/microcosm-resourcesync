@@ -32,7 +32,7 @@ class HTTPEndpoint(Endpoint):
     def default_formatter(self):
         return Formatters.JSON.name
 
-    def read(self, resource_cls, **kwargs):
+    def read(self, schema_cls, **kwargs):
         """
         Read all YAML documents from the file.
 
@@ -43,7 +43,7 @@ class HTTPEndpoint(Endpoint):
         content_type = response.headers["Content-Type"]
         formatter = Formatters.for_content_type(content_type).value
 
-        yield [resource_cls(formatter.load(response.text))]
+        yield [schema_cls(formatter.load(response.text))]
 
     def write(self, resources, formatter, **kwargs):
         """
