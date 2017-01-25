@@ -1,59 +1,15 @@
 """
-Endpoint types.
+Read/write from a YAML file.
 
 """
-from abc import ABCMeta, abstractmethod
-from six import add_metaclass
 from os import makedirs, unlink
 from os.path import dirname, exists
 
 from click import ClickException
 from yaml import safe_load_all
 
+from microcosm_resourcesync.endpoints.base import Endpoint
 from microcosm_resourcesync.formatters import Formatters
-
-
-@add_metaclass(ABCMeta)
-class Endpoint(object):
-    """
-    An endpoint is able to read and write resources.
-
-    """
-    @abstractmethod
-    def read(self, resource_cls):
-        """
-        Generate resource lists of the given class.
-
-        """
-        pass
-
-    @abstractmethod
-    def write(self, resources, formatter, remove_first):
-        """
-        Write resources using the given formatter.
-
-        """
-        pass
-
-    def validate_for_read(self, resource_cls):
-        """
-        Validate that reading is possible.
-
-        """
-        pass
-
-    def validate_for_write(self, formatter, remove_first):
-        """
-        Validate that writing is possible.
-
-        """
-        pass
-
-    @staticmethod
-    def for_(endpoint):
-        if endpoint.endswith(".yaml") or endpoint.endswith(".yml"):
-            return YAMLFileEndpoint(endpoint)
-        raise Exception
 
 
 class YAMLFileEndpoint(Endpoint):

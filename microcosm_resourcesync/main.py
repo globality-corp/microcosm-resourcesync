@@ -11,14 +11,14 @@ from click import (
     pass_context,
 )
 
-from microcosm_resourcesync.endpoints import Endpoint
+from microcosm_resourcesync.endpoints import endpoint_for
 from microcosm_resourcesync.formatters import Formatters
 from microcosm_resourcesync.resources import Resources
 
 
 def validate_endpoint(context, param, value):
     try:
-        return Endpoint.for_(value)
+        return endpoint_for(value)
     except:
         raise BadParameter("Unsupported endpoint format: {}".format(value))
 
