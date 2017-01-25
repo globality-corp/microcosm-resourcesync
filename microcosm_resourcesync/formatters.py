@@ -48,7 +48,16 @@ class YAMLFormatter(Formatter):
         return load_yaml(data)
 
     def dump(self, dct):
-        return dump_yaml(dct)
+        return dump_yaml(
+            dict(dct),
+            # show every document in its own block
+            default_flow_style=False,
+            # start a new document (via "---") before every resource
+            explicit_start=True,
+            # follow (modern) PEP8 max line length and indent
+            width=99,
+            indent=4,
+        )
 
 
 @unique
