@@ -32,7 +32,7 @@ class YAMLFileEndpoint(Endpoint):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.path == other.path
 
-    def read(self, resource_cls):
+    def read(self, resource_cls, **kwargs):
         """
         Read all YAML documents from the file.
 
@@ -43,7 +43,7 @@ class YAMLFileEndpoint(Endpoint):
             for raw_resource in raw_resources:
                 yield [resource_cls(raw_resource)]
 
-    def write(self, resources, formatter, remove_first):
+    def write(self, resources, formatter, remove=False, **kwargs):
         """
         Write resources as YAML to the file.
 

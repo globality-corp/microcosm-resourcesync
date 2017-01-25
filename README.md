@@ -11,6 +11,35 @@ This process is especially useful if the intermediate format lives in version co
 and merging well.
 
 
+## Usage
+
+The main usage is:
+
+    resource-sync <origin> <destination>
+
+Where `origin` and `destination` define an endpoint using one of:
+
+ -  HTTP
+ -  a YAML file
+ - a directory tree
+ - `-` for `stdin`/`stdout`
+
+Resource processing always needs two basic inputs:
+
+ 1. The output encoding format (e.g. YAML or JSON)
+
+    The output format will default based on the destination endpoint type, but `--json` or `--yaml` can always
+    be used to select a specific encoding format.
+
+    Note also that the input format is derived from the input type or data.
+
+ 2. The resource schema model
+
+    The resource is expected to define a set of common attributes (see `Assumptions`, below). The default behavior
+    is to use [HAL JSON](http://stateless.co/hal_specification.html) to encode some of these attributes in hypertext,
+    but a simpler schema is possible using `--simple` (vs `--hal`).
+
+
 ## Main Use Cases
 
  1. Pull data from an HTTP endpoint to a local directory:
@@ -30,22 +59,17 @@ and merging well.
     For directory trees that live in version control, the `--rm` flag can be used to first remove all existing
     data before syncronizing, thereby creating a full diff.
 
-    The destination argument may also be a `.yaml` file path, in which case a single file will be generated.
-
  2. Push data from a local directory to an HTTP (base) url:
 
         resource-sync /path/to/local/data https://example.com
 
-    In this case, `resource-sync` will push the local resource(s) to the remote server. By default, each resource
-    will be encoded using JSON, though YAML may be used instead via the `--yaml` flag.
+    In this case, `resource-sync` will push the local resource(s) to the remote server.
 
     If the resources define dependency relationships, a *topological* sort will be used to ensure that resources
     are pushed in the correct order (e.g. assuming a remote server with no prior content).
 
- 3. Replacing existing resource content with new content.
 
-
-## Basic Assumptions
+## Assumptions
 
 `resource-sync` makes the following assumptions about HTTP and resources:
 
@@ -57,13 +81,10 @@ and merging well.
  6. Resources can be replaced by using the HTTP `PUT` operation against this URI
  7. Resources have the same URI path in every environment (but with different URI bases)
 
-By default, `resource-sync` also supports the [HAL JSON](http://stateless.co/hal_specification.html) model
-for JSON-based hypertext. For resources that define hypertext, the `self` link will be used as the resource's canonical
-URI (even if some other URI was used to retrieve it) and other links may be used to define dependency relationships.
-
 
 ## TODO
 
  -  Selectively ignoring some resources
  -  Updating resources in batches
  -  Deletion from HTTP endpoints
+ -  Toposorting

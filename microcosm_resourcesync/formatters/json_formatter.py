@@ -13,4 +13,11 @@ class JSONFormatter(Formatter):
         return loads(data)
 
     def dump(self, dct):
-        return dumps(dct)
+        return dumps(dct) + "\n"
+
+    @property
+    def mime_types(self):
+        return [
+            "application/json",
+            "text/json",
+        ]

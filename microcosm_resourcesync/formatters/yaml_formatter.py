@@ -23,3 +23,13 @@ class YAMLFormatter(Formatter):
             width=99,
             indent=4,
         )
+
+    @property
+    def mime_types(self):
+        return [
+            "application/yaml",
+            "application/x-yaml",
+            "text/vnd.yaml",
+            "text/yaml",
+            "text/x-yaml",
+        ]
