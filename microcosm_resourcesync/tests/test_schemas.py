@@ -1,10 +1,10 @@
 """
-Resource tests.
+Schema tests.
 
 """
-from microcosm_resourcesync.resources import (
-    HALResource,
-    SimpleResource,
+from microcosm_resourcesync.schemas import (
+    HALSchema,
+    SimpleSchema,
 )
 
 
@@ -36,14 +36,14 @@ SIMPLE_EXAMPLE = dict(
 
 
 def test_hal_resource():
-    resource = HALResource(HAL_EXAMPLE)
+    resource = HALSchema(HAL_EXAMPLE)
     assert_that(resource.id, is_(equal_to(ID)))
     assert_that(resource.type, is_(equal_to(TYPE)))
     assert_that(resource.uri, is_(equal_to(URI)))
 
 
 def test_simple_resource():
-    resource = SimpleResource(SIMPLE_EXAMPLE)
+    resource = SimpleSchema(SIMPLE_EXAMPLE)
     assert_that(resource.id, is_(equal_to(ID)))
     assert_that(resource.type, is_(equal_to(TYPE)))
     assert_that(resource.uri, is_(equal_to(URI)))

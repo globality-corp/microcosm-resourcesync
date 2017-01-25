@@ -1,5 +1,5 @@
 """
-Resource interface.
+Schema interface.
 
 """
 from abc import ABCMeta, abstractproperty
@@ -7,15 +7,15 @@ from six import add_metaclass
 
 
 @add_metaclass(ABCMeta)
-class Resource(dict):
+class Schema(dict):
     """
-    A resource wraps a dictionary and defines a `uri`, `id`, and `type`.
+    A schema wraps a dictionary and defines a `uri`, `id`, and `type`.
 
     """
     @property
     def id(self):
         """
-        A resource dictionary is assumed to have an "id" attribute.
+        The dictionary is assumed to have an "id" attribute.
 
         """
         return self["id"]

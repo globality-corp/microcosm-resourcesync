@@ -32,7 +32,7 @@ class YAMLFileEndpoint(Endpoint):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.path == other.path
 
-    def read(self, resource_cls):
+    def read(self, schema_cls, **kwargs):
         """
         Read all YAML documents from the file.
 
@@ -41,9 +41,9 @@ class YAMLFileEndpoint(Endpoint):
             raw_resources = safe_load_all(file_)
 
             for raw_resource in raw_resources:
-                yield [resource_cls(raw_resource)]
+                yield [schema_cls(raw_resource)]
 
-    def write(self, resources, formatter, remove_first):
+    def write(self, resources, formatter, remove=False, **kwargs):
         """
         Write resources as YAML to the file.
 
@@ -52,7 +52,7 @@ class YAMLFileEndpoint(Endpoint):
             for resource in resources:
                 file_.write(formatter.value.dump(resource))
 
-    def validate_for_write(self, formatter, remove_first):
+    def validate_for_write(self, formatter, remove=False, **kwargs):
         # must use the correct formatter (JSON doesn't support multi-document files)
         if formatter != Formatters.YAML:
             raise ClickException("Cannot use {} format YAMLFileEndpoint".format(
@@ -61,7 +61,7 @@ class YAMLFileEndpoint(Endpoint):
 
         # handle existing files
         if exists(self.path):
-            if remove_first:
+            if remove:
                 # remove
                 unlink(self.path)
             else:

@@ -1,12 +1,12 @@
 """
 
 """
-from microcosm_resourcesync.resources.base import Resource
+from microcosm_resourcesync.schemas.base import Schema
 
 
-class HALResource(Resource):
+class HALSchema(Schema):
     """
-    A resource that implements HAL JSON linking.
+    A schema that implements HAL JSON linking.
 
     """
     @property
