@@ -1,5 +1,5 @@
 """
-Format tests.
+Formatter tests.
 
 """
 from hamcrest import (
@@ -8,7 +8,7 @@ from hamcrest import (
     is_,
 )
 
-from microcosm_resourcesync.formats import Formats
+from microcosm_resourcesync.formatters import Formatters
 
 
 EXAMPLE = dict(
@@ -18,7 +18,7 @@ EXAMPLE = dict(
 
 
 def test_json():
-    formatter = Formats.JSON.value
+    formatter = Formatters.JSON.value
     assert_that(
         formatter.load(formatter.dump(EXAMPLE)),
         is_(equal_to(EXAMPLE)),
@@ -26,7 +26,7 @@ def test_json():
 
 
 def test_yaml():
-    formatter = Formats.YAML.value
+    formatter = Formatters.YAML.value
     assert_that(
         formatter.load(formatter.dump(EXAMPLE)),
         is_(equal_to(EXAMPLE)),

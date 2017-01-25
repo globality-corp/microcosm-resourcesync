@@ -11,7 +11,7 @@ from yaml import safe_dump as dump_yaml, safe_load as load_yaml
 
 
 @add_metaclass(ABCMeta)
-class Format(object):
+class Formatter(object):
     """
     A format encodes a resource to/from a dictionary.
 
@@ -33,7 +33,7 @@ class Format(object):
         pass
 
 
-class JSONFormat(Format):
+class JSONFormatter(Formatter):
 
     def load(self, data):
         return load_json(data)
@@ -42,7 +42,7 @@ class JSONFormat(Format):
         return dump_json(dct)
 
 
-class YAMLFormat(Format):
+class YAMLFormatter(Formatter):
 
     def load(self, data):
         return load_yaml(data)
@@ -52,6 +52,6 @@ class YAMLFormat(Format):
 
 
 @unique
-class Formats(Enum):
-    JSON = JSONFormat()
-    YAML = YAMLFormat()
+class Formatters(Enum):
+    JSON = JSONFormatter()
+    YAML = YAMLFormatter()
