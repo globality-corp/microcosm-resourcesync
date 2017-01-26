@@ -16,7 +16,6 @@ from click import (
 
 from microcosm_resourcesync.endpoints import endpoint_for
 from microcosm_resourcesync.formatters import Formatters
-from microcosm_resourcesync.options import Options
 from microcosm_resourcesync.schemas import Schemas
 from microcosm_resourcesync.toposort import toposorted
 
@@ -34,7 +33,7 @@ def validate_positive(context, param, value):
     return value
 
 
-def batched(resources, batch_size):
+def batched(resources, batch_size, **kwargs):
     """
     Chunk resources into batches.
 
@@ -57,6 +56,28 @@ class NullIO(object):
         pass
 
 
+def sync(origin, destination, **kwargs):
+    """
+    Synchronize data from one endpoint to another.
+
+    """
+    origin.validate_for_read(**kwargs)
+    destination.validate_for_write(**kwargs)
+
+    echo("Reading resources from: {}".format(origin), err=True)
+    resources = list(origin.read(**kwargs))
+
+    echo("Toposorting {} resources".format(len(resources)), err=True)
+    sorted_resources = toposorted(resources)
+
+    echo("Writing resources to: {}".format(destination), err=True)
+    progress_file = stderr if destination.show_progressbar else NullIO()
+    with progressbar(length=len(resources), file=progress_file) as progressbar_:
+        for resource_batch in batched(sorted_resources, **kwargs):
+            destination.write(resource_batch, **kwargs)
+            progressbar_.update(len(resource_batch))
+
+
 @command()
 @pass_context
 @option("--json", "-j", "formatter", flag_value=Formatters.JSON.name, help="Use json output")
@@ -69,15 +90,7 @@ class NullIO(object):
 @option("--max-attempts", "-b", type=int, default=1, callback=validate_positive)
 @argument("origin", callback=validate_endpoint)
 @argument("destination", callback=validate_endpoint)
-def main(context,
-         formatter,
-         resource_type,
-         remove,
-         follow,
-         batch_size,
-         max_attempts,
-         origin,
-         destination):
+def main(context, origin, destination, formatter, resource_type, **kwargs):
     """
     Synchronized resources from origin endpoint to destination endpoint.
 
@@ -85,27 +98,7 @@ def main(context,
     if origin == destination:
         context.fail("origin and destination may not be the same")
 
-    options = Options(
-        batch_size=batch_size,
-        formatter=Formatters[formatter or destination.default_formatter],
-        max_attempts=max_attempts,
-        remove=remove,
-        schema_cls=Schemas[resource_type or Schemas.HAL.name].value,
-    )
-    options_kwargs = vars(options)
+    formatter = Formatters[formatter or destination.default_formatter]
+    schema_cls = Schemas[resource_type or Schemas.HAL.name].value
 
-    origin.validate_for_read(**options_kwargs)
-    destination.validate_for_write(**options_kwargs)
-
-    echo("Reading resources from: {}".format(origin), err=True)
-    resources = list(origin.read(**options_kwargs))
-
-    echo("Toposorting {} resources".format(len(resources)), err=True)
-    sorted_resources = toposorted(resources)
-
-    echo("Writing resources to: {}".format(destination), err=True)
-    progress_file = stderr if destination.show_progressbar else NullIO()
-    with progressbar(length=len(resources), file=progress_file) as progressbar_:
-        for resource_batch in batched(sorted_resources, options.batch_size):
-            destination.write(resource_batch, **options_kwargs)
-            progressbar_.update(len(resource_batch))
+    sync(origin, destination, formatter=formatter, schema_cls=schema_cls, **kwargs)
