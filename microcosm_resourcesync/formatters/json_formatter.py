@@ -16,6 +16,10 @@ class JSONFormatter(Formatter):
         return dumps(dct) + "\n"
 
     @property
+    def extension(self):
+        return ".json"
+
+    @property
     def mime_types(self):
         return [
             "application/json",

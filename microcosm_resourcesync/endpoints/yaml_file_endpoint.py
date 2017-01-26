@@ -2,7 +2,7 @@
 Read/write from a YAML file.
 
 """
-from os import makedirs, unlink
+from os import unlink
 from os.path import dirname, exists
 
 from click import ClickException
@@ -70,7 +70,4 @@ class YAMLFileEndpoint(Endpoint):
                 ))
 
         # create directories
-        try:
-            makedirs(dirname(self.path))
-        except OSError:
-            pass
+        self.mkdir(dirname(self.path))

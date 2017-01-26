@@ -2,6 +2,7 @@
 Endpoint interface
 
 """
+from os import makedirs
 from abc import ABCMeta, abstractmethod
 from six import add_metaclass
 
@@ -51,3 +52,10 @@ class Endpoint(object):
 
         """
         pass
+
+    def mkdir(self, path):
+        # create directories
+        try:
+            makedirs(path)
+        except OSError:
+            pass

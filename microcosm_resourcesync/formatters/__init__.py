@@ -20,3 +20,11 @@ class Formatters(Enum):
                 return formatter
 
         raise Exception("Unsupported content type: {}".format(content_type))
+
+    @classmethod
+    def for_extension(cls, ext):
+        for formatter in cls:
+            if ext == formatter.value.extension:
+                return formatter
+
+        raise Exception("Unsupported extension: {}".format(ext))

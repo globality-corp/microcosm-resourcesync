@@ -38,6 +38,14 @@ class Formatter(object):
         """
         pass
 
+    @abstractproperty
+    def extension(self):
+        """
+        Return the default file extension for this format.
+
+        """
+        pass
+
     @property
     def preferred_mime_type(self):
         return self.mime_types[0]

@@ -25,6 +25,10 @@ class YAMLFormatter(Formatter):
         )
 
     @property
+    def extension(self):
+        return ".yaml"
+
+    @property
     def mime_types(self):
         return [
             "application/yaml",
