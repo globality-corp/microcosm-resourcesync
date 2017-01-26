@@ -21,6 +21,10 @@ class Schema(dict):
         return self["id"]
 
     @abstractproperty
+    def links(self):
+        pass
+
+    @abstractproperty
     def parents(self):
         pass
 

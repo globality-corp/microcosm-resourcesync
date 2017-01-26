@@ -38,24 +38,33 @@ class HTTPEndpoint(Endpoint):
     def show_progressbar(self):
         return True
 
-    def read(self, schema_cls, **kwargs):
+    def read(self, schema_cls, follow, **kwargs):
         """
         Read all YAML documents from the file.
 
         """
-        response = self.session.get(self.uri)
-        response.raise_for_status()
+        stack, seen = [self.uri], set()
 
-        content_type = response.headers["Content-Type"]
-        formatter = Formatters.for_content_type(content_type).value
+        while stack:
+            uri = stack.pop()
 
-        resource = schema_cls(formatter.load(response.text))
+            # avoid processing resources cyclically
+            if uri in seen:
+                continue
+            seen.add(uri)
 
-        if hasattr(resource, "id"):
-            yield resource
+            echo("Fetching resource(s) from: {}".format(uri), err=True)
+            response = self.session.get(uri)
+            response.raise_for_status()
+            content_type = response.headers["Content-Type"]
+            formatter = Formatters.for_content_type(content_type).value
+            resource_data = formatter.load(response.text)
 
-        for child in resource.get("items", []):
-            yield schema_cls(child)
+            for resource in self.iter_resources(resource_data, schema_cls):
+                yield resource
+
+                if follow:
+                    stack.extend(resource.links)
 
     def write(self, resources, formatter, batch_size, max_attempts, **kwargs):
         """
@@ -92,6 +101,21 @@ class HTTPEndpoint(Endpoint):
             scheme=parsed_base_uri.scheme,
             netloc=parsed_base_uri.netloc,
         ))
+
+    def iter_resources(self, resource_data, schema_cls):
+        """
+        Iterate over resources in a resource.
+
+        """
+        resource = schema_cls(resource_data)
+
+        # ignore resources that do not have identifiers (e.g. collections)
+        if hasattr(resource, "id"):
+            yield resource
+
+        # process embedded resources (e.g. collections)
+        for embedded_resource in resource.get("items", []):
+            yield schema_cls(embedded_resource)
 
     def retry(self, func, uri, max_attempts, **kwargs):
         """

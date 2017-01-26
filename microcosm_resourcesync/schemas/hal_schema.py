@@ -10,16 +10,25 @@ class HALSchema(Schema):
 
     """
     @property
+    def links(self):
+        return [
+            uri
+            for relation, uri in self.iter_links()
+        ]
+
+    @property
     def parents(self):
-        for relation, links in self["_links"].items():
-            if relation == "self" or relation.startswith("child:"):
-                continue
-            if isinstance(links, list):
-                for link in links:
-                    yield link["href"]
-            else:
-                link = links["href"]
-                yield link
+        """
+        Compute parent URIs using link hypertext.
+
+        We use the convention that a link prefixed with "child:" is a non-parent link.
+
+        """
+        return [
+            uri
+            for relation, uri in self.iter_links()
+            if relation != "self" and not relation.startswith("child:")
+        ]
 
     @property
     def type(self):
@@ -36,3 +45,12 @@ class HALSchema(Schema):
 
         """
         return self["_links"]["self"]["href"]
+
+    def iter_links(self):
+        for relation, links in self["_links"].items():
+            if isinstance(links, list):
+                for link in links:
+                    yield relation, link["href"]
+            else:
+                link = links["href"]
+                yield relation, link

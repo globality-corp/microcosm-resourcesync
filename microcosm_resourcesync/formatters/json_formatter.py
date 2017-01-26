@@ -13,7 +13,8 @@ class JSONFormatter(Formatter):
         return loads(data)
 
     def dump(self, dct):
-        return dumps(dct) + "\n"
+        # ensure deterministic output order for easier diffs
+        return dumps(dct, sort_keys=True) + "\n"
 
     @property
     def extension(self):
