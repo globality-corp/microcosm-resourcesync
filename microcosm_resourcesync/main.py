@@ -18,6 +18,7 @@ from microcosm_resourcesync.endpoints import endpoint_for
 from microcosm_resourcesync.formatters import Formatters
 from microcosm_resourcesync.options import Options
 from microcosm_resourcesync.schemas import Schemas
+from microcosm_resourcesync.toposort import toposorted
 
 
 def validate_endpoint(context, param, value):
@@ -99,11 +100,12 @@ def main(context,
     echo("Reading resources from: {}".format(origin), err=True)
     resources = list(origin.read(**options_kwargs))
 
-    # XXX toposort
+    echo("Toposorting {} resources".format(len(resources)), err=True)
+    sorted_resources = toposorted(resources)
 
     echo("Writing resources to: {}".format(destination), err=True)
     progress_file = stderr if destination.show_progressbar else NullIO()
     with progressbar(length=len(resources), file=progress_file) as progressbar_:
-        for resource_batch in batched(resources, options.batch_size):
-            destination.write(resources, **options_kwargs)
+        for resource_batch in batched(sorted_resources, options.batch_size):
+            destination.write(resource_batch, **options_kwargs)
             progressbar_.update(len(resource_batch))

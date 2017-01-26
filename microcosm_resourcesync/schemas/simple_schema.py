@@ -11,6 +11,10 @@ class SimpleSchema(Schema):
 
     """
     @property
+    def parents(self):
+        return self.get("parents", [])
+
+    @property
     def type(self):
         return self["type"]
 

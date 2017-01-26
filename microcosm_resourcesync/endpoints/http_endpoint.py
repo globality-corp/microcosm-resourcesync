@@ -49,8 +49,13 @@ class HTTPEndpoint(Endpoint):
         content_type = response.headers["Content-Type"]
         formatter = Formatters.for_content_type(content_type).value
 
-        # XXX implement resource following
-        yield schema_cls(formatter.load(response.text))
+        resource = schema_cls(formatter.load(response.text))
+
+        if hasattr(resource, "id"):
+            yield resource
+
+        for child in resource.get("items", []):
+            yield schema_cls(child)
 
     def write(self, resources, formatter, batch_size, max_attempts, **kwargs):
         """
