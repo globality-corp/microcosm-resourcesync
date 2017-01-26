@@ -24,7 +24,7 @@ class PipeEndpoint(Endpoint):
         raw_resources = safe_load_all(stdin)
 
         for raw_resource in raw_resources:
-            yield [schema_cls(raw_resource)]
+            yield schema_cls(raw_resource)
 
     def write(self, resources, formatter, **kwargs):
         """

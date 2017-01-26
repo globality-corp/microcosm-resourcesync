@@ -18,10 +18,14 @@ class Endpoint(object):
     def default_formatter(self):
         return Formatters.YAML.name
 
+    @property
+    def show_progressbar(self):
+        return False
+
     @abstractmethod
     def read(self, schema_cls, **kwargs):
         """
-        Generate resource lists of the given class.
+        Generate resources of the given schema.
 
         """
         pass

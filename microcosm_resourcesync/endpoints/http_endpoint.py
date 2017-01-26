@@ -4,7 +4,9 @@ HTTP endpoint.
 """
 from six.moves.urllib.parse import urlparse, urlunparse
 
+from click import echo
 from requests import Session
+from requests.exceptions import ConnectionError, HTTPError
 
 from microcosm_resourcesync.endpoints.base import Endpoint
 from microcosm_resourcesync.formatters import Formatters
@@ -32,6 +34,10 @@ class HTTPEndpoint(Endpoint):
     def default_formatter(self):
         return Formatters.JSON.name
 
+    @property
+    def show_progressbar(self):
+        return True
+
     def read(self, schema_cls, **kwargs):
         """
         Read all YAML documents from the file.
@@ -43,24 +49,28 @@ class HTTPEndpoint(Endpoint):
         content_type = response.headers["Content-Type"]
         formatter = Formatters.for_content_type(content_type).value
 
-        yield [schema_cls(formatter.load(response.text))]
+        # XXX implement resource following
+        yield schema_cls(formatter.load(response.text))
 
-    def write(self, resources, formatter, **kwargs):
+    def write(self, resources, formatter, batch_size, max_attempts, **kwargs):
         """
-        Write resources as YAML to the file.
+        Write resources as YAML to an HTTP endpoint.
+
+        NB: we currently ignore the batch size, but we should adopt the BulkUpdate convention
+        for batches of size greater than one.
 
         """
-        # XXX batching
-        # XXX error handling, retry, logging (and verbosity)
         for resource in resources:
             uri = self.join_uri(resource.uri)
             data = formatter.value.dump(resource)
-            response = self.session.put(
-                uri,
+            response = self.retry(
+                self.session.put,
+                uri=uri,
                 data=data,
                 headers={
                     "Content-Type": formatter.value.preferred_mime_type,
                 },
+                max_attempts=max_attempts,
             )
             response.raise_for_status()
 
@@ -77,3 +87,28 @@ class HTTPEndpoint(Endpoint):
             scheme=parsed_base_uri.scheme,
             netloc=parsed_base_uri.netloc,
         ))
+
+    def retry(self, func, uri, max_attempts, **kwargs):
+        """
+        Retry HTTP operations on connection failures.
+
+        """
+        last_error = None
+        for attempt in range(max_attempts):
+            try:
+                return func(uri, **kwargs)
+            except ConnectionError as error:
+                echo("Connection error for uri: {}: {}".format(uri, error), err=True)
+                last_error = error
+                continue
+            except HTTPError as error:
+                if error.response.status_code in (504, 502):
+                    echo("HTTP error for uri: {}: {}".format(uri, error), err=True)
+                    last_error = error
+                    continue
+                raise
+            else:
+                break
+        else:
+            # If we reached here, all attempts were unsuccessful - raise last error encountered
+            raise last_error
