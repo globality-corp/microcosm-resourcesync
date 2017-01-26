@@ -36,21 +36,21 @@ def toposorted(resources):
     Uses a DFS.
 
     """
-    results = []
+    # sort resources first so we have a deterministic order of nodes with the same partial order
+    resources = sorted(
+        resources,
+        key=lambda resource: (resource.type, resource.id),
+    )
 
-    visited = {}
-
-    nodes = {
-        resource.uri: resource
-        for resource in resources
-    }
-
-    edges = defaultdict(list)
-    for uri, resource in nodes.items():
+    # build graph
+    nodes, edges = dict(), defaultdict(list)
+    for resource in resources:
+        nodes[resource.uri] = resource
         for parent_uri in resource.parents:
-            edges[parent_uri].append(uri)
+            edges[parent_uri].append(resource.uri)
 
-    for resource in nodes.values():
+    # DFS
+    results, visited = [], {}
+    for resource in resources:
         visit(nodes, edges, visited, results, resource)
-
     return reversed(results)

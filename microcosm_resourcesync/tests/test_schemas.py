@@ -2,17 +2,17 @@
 Schema tests.
 
 """
-from microcosm_resourcesync.schemas import (
-    HALSchema,
-    SimpleSchema,
-)
-
-
 from hamcrest import (
     assert_that,
     equal_to,
     is_,
 )
+
+from microcosm_resourcesync.schemas import (
+    HALSchema,
+    SimpleSchema,
+)
+
 
 ID = "c7f12ba5885f4b47bfafaa583cd5a097"
 TYPE = "foo"
