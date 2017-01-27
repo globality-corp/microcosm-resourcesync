@@ -80,6 +80,7 @@ class HTTPEndpoint(Endpoint):
         for resource in resources:
             uri = self.join_uri(resource.uri)
             data = formatter.value.dump(resource)
+            # XXX debug output data
             response = self.retry(
                 self.session.put,
                 uri=uri,
