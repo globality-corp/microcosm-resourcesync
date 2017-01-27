@@ -13,9 +13,9 @@ and merging well.
 
 ## Usage
 
-The main usage is synchronizes from an `origin` endpoint to a `destination` endpoint:
+The main usage is synchronizes from one or more `origin` endpoint to a `destination` endpoint:
 
-    resource-sync <origin> <destination>
+    resource-sync [OPTIONS] [ORIGIN]... DESTINATION
 
 Where endpoints may be any of the following:
 
