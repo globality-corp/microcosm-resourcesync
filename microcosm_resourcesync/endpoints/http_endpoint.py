@@ -62,7 +62,10 @@ class HTTPEndpoint(Endpoint):
             resource_data = formatter.load(response.text)
 
             for resource in self.iter_resources(resource_data, schema_cls):
-                yield resource
+                # ignore resources that do not have identifiers (e.g. collections)
+                # (but still follow their links)
+                if hasattr(resource, "id"):
+                    yield resource
 
                 stack.extend(resource.links(follow_mode))
 
@@ -109,9 +112,7 @@ class HTTPEndpoint(Endpoint):
         """
         resource = schema_cls(resource_data)
 
-        # ignore resources that do not have identifiers (e.g. collections)
-        if hasattr(resource, "id"):
-            yield resource
+        yield resource
 
         # process embedded resources (e.g. collections)
         for embedded_resource in resource.embedded:

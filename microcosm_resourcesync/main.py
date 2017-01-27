@@ -29,6 +29,13 @@ def validate_endpoint(context, param, value):
         raise BadParameter("Unsupported endpoint format: {}".format(value))
 
 
+def validate_endpoints(context, param, value):
+    return [
+        validate_endpoint(context, param, item)
+        for item in value
+    ]
+
+
 def validate_positive(context, param, value):
     if value < 1:
         raise BadParameter("Must be positive")
@@ -43,16 +50,23 @@ class NullIO(object):
         pass
 
 
-def sync(origin, destination, **kwargs):
+def sync(context, origins, destination, **kwargs):
     """
     Synchronize data from one endpoint to another.
 
     """
-    origin.validate_for_read(**kwargs)
+    for origin in origins:
+        if origin == destination:
+            context.fail("origin and destination may not be the same")
+
+    for origin in origins:
+        origin.validate_for_read(**kwargs)
     destination.validate_for_write(**kwargs)
 
-    echo("Reading resources from: {}".format(origin), err=True)
-    resources = list(origin.read(**kwargs))
+    resources = []
+    for origin in origins:
+        echo("Reading resources from: {}".format(origin), err=True)
+        resources.extend(origin.read(**kwargs))
 
     echo("Toposorting {} resources".format(len(resources)), err=True)
     sorted_resources = toposorted(resources)
@@ -78,23 +92,21 @@ def sync(origin, destination, **kwargs):
 @option("--batch-size", "-b", type=int, default=1, callback=validate_positive)
 @option("--max-attempts", "-m", type=int, default=1, callback=validate_positive)
 # XXX verbosity
-@argument("origin", callback=validate_endpoint)
-@argument("destination", callback=validate_endpoint)
+@argument("origin", callback=validate_endpoints, nargs=-1)
+@argument("destination", callback=validate_endpoint, nargs=1)
 def main(context, origin, destination, formatter, resource_type, follow_mode, **kwargs):
     """
     Synchronized resources from origin endpoint to destination endpoint.
 
     """
-    if origin == destination:
-        context.fail("origin and destination may not be the same")
-
     formatter = Formatters[formatter or destination.default_formatter]
     schema_cls = Schemas[resource_type or Schemas.HAL.name].value
     follow_mode = FollowMode[follow_mode or FollowMode.PAGE.name]
 
     sync(
-        origin,
-        destination,
+        context=context,
+        origins=origin,
+        destination=destination,
         follow_mode=follow_mode,
         formatter=formatter,
         schema_cls=schema_cls,
