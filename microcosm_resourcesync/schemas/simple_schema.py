@@ -1,7 +1,7 @@
 """
+A simplistic, non-HAL schema.
 
 """
-
 from microcosm_resourcesync.schemas.base import Schema
 
 
@@ -11,7 +11,11 @@ class SimpleSchema(Schema):
 
     """
     @property
-    def links(self):
+    def embedded(self):
+        return self.get("embedded", [])
+
+    def links(self, follow_mode):
+        # no filtering by follow mode yet
         return self.get("links", [])
 
     @property

@@ -38,7 +38,7 @@ class HTTPEndpoint(Endpoint):
     def show_progressbar(self):
         return True
 
-    def read(self, schema_cls, follow, **kwargs):
+    def read(self, schema_cls, follow_mode, **kwargs):
         """
         Read all YAML documents from the file.
 
@@ -55,6 +55,7 @@ class HTTPEndpoint(Endpoint):
 
             echo("Fetching resource(s) from: {}".format(uri), err=True)
             response = self.session.get(uri)
+            # XXX error handling, esp. 404
             response.raise_for_status()
             content_type = response.headers["Content-Type"]
             formatter = Formatters.for_content_type(content_type).value
@@ -63,8 +64,7 @@ class HTTPEndpoint(Endpoint):
             for resource in self.iter_resources(resource_data, schema_cls):
                 yield resource
 
-                if follow:
-                    stack.extend(resource.links)
+                stack.extend(resource.links(follow_mode))
 
     def write(self, resources, formatter, batch_size, max_attempts, **kwargs):
         """
@@ -114,7 +114,7 @@ class HTTPEndpoint(Endpoint):
             yield resource
 
         # process embedded resources (e.g. collections)
-        for embedded_resource in resource.get("items", []):
+        for embedded_resource in resource.embedded:
             yield schema_cls(embedded_resource)
 
     def retry(self, func, uri, max_attempts, **kwargs):

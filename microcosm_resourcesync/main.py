@@ -14,7 +14,9 @@ from click import (
     progressbar,
 )
 
+from microcosm_resourcesync.batching import batched
 from microcosm_resourcesync.endpoints import endpoint_for
+from microcosm_resourcesync.following import FollowMode
 from microcosm_resourcesync.formatters import Formatters
 from microcosm_resourcesync.schemas import Schemas
 from microcosm_resourcesync.toposort import toposorted
@@ -31,21 +33,6 @@ def validate_positive(context, param, value):
     if value < 1:
         raise BadParameter("Must be positive")
     return value
-
-
-def batched(resources, batch_size, **kwargs):
-    """
-    Chunk resources into batches.
-
-    """
-    batch = []
-    for resource in resources:
-        batch.append(resource)
-        if len(batch) == batch_size:
-            yield batch
-            batch = []
-    if batch:
-        yield batch
 
 
 class NullIO(object):
@@ -83,14 +70,17 @@ def sync(origin, destination, **kwargs):
 @option("--json", "-j", "formatter", flag_value=Formatters.JSON.name, help="Use json output")
 @option("--yaml", "-y", "formatter", flag_value=Formatters.YAML.name, help="Use yaml output")
 @option("--hal", "resource_type", flag_value=Schemas.HAL.name, help="Use HAL JSON schema (default)")
-@option("--simple", "resource_type", flag_value=Schemas.SIMPLE.name, help="Use Simple JSON schema")
+@option("--simple", "-s", "resource_type", flag_value=Schemas.SIMPLE.name, help="Use Simple JSON schema")
 @option("--rm", "remove", is_flag=True)
-@option("--follow", is_flag=True)
+@option("--follow-all", "-a", "follow_mode", flag_value=FollowMode.ALL.name)
+@option("--follow-child", "-c", "follow_mode", flag_value=FollowMode.CHILD.name)
+@option("--follow-page", "-p", "follow_mode", flag_value=FollowMode.PAGE.name)
 @option("--batch-size", "-b", type=int, default=1, callback=validate_positive)
-@option("--max-attempts", "-b", type=int, default=1, callback=validate_positive)
+@option("--max-attempts", "-m", type=int, default=1, callback=validate_positive)
+# XXX verbosity
 @argument("origin", callback=validate_endpoint)
 @argument("destination", callback=validate_endpoint)
-def main(context, origin, destination, formatter, resource_type, **kwargs):
+def main(context, origin, destination, formatter, resource_type, follow_mode, **kwargs):
     """
     Synchronized resources from origin endpoint to destination endpoint.
 
@@ -100,5 +90,13 @@ def main(context, origin, destination, formatter, resource_type, **kwargs):
 
     formatter = Formatters[formatter or destination.default_formatter]
     schema_cls = Schemas[resource_type or Schemas.HAL.name].value
+    follow_mode = FollowMode[follow_mode or FollowMode.PAGE.name]
 
-    sync(origin, destination, formatter=formatter, schema_cls=schema_cls, **kwargs)
+    sync(
+        origin,
+        destination,
+        follow_mode=follow_mode,
+        formatter=formatter,
+        schema_cls=schema_cls,
+        **kwargs
+    )

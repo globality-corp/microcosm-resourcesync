@@ -89,7 +89,5 @@ are pushed in the correct order (e.g. assuming a remote server with no prior con
 
 ## TODO
 
- -  Selectively ignoring some resources
  -  Updating resources in batches
  -  Deletion from HTTP endpoints
- -  Toposorting

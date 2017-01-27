@@ -1,6 +1,8 @@
 """
+A schema using HAL JSON linking conventions.
 
 """
+from microcosm_resourcesync.following import FollowMode
 from microcosm_resourcesync.schemas.base import Schema
 
 
@@ -10,25 +12,45 @@ class HALSchema(Schema):
 
     """
     @property
-    def links(self):
+    def embedded(self):
+        return self.get("items", [])
+
+    def links(self, follow_mode):
         return [
             uri
             for relation, uri in self.iter_links()
+            if self.should_follow(relation, uri, follow_mode)
         ]
 
     @property
     def parents(self):
+        return [
+            uri
+            for relation, uri in self.iter_links()
+            if relation.startswith("parent:")
+        ]
+
+    def should_follow(self, relation, uri, follow_mode):
         """
-        Compute parent URIs using link hypertext.
+        Compute whether a link should be followed.
 
         We use the convention that a link prefixed with "child:" is a non-parent link.
 
         """
-        return [
-            uri
-            for relation, uri in self.iter_links()
-            if relation != "self" and not relation.startswith("child:")
-        ]
+        if relation == "self":
+            # don't follow self links
+            return False
+
+        if follow_mode == FollowMode.ALL:
+            return True
+
+        if follow_mode == FollowMode.CHILD and relation.startswith("child:"):
+            return True
+
+        if follow_mode in (FollowMode.CHILD, FollowMode.PAGE) and relation in ("next", "prev"):
+            return True
+
+        return False
 
     @property
     def type(self):

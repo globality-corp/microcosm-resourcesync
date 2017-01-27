@@ -2,7 +2,7 @@
 Schema interface.
 
 """
-from abc import ABCMeta, abstractproperty
+from abc import ABCMeta, abstractmethod, abstractproperty
 from six import add_metaclass
 
 
@@ -21,7 +21,11 @@ class Schema(dict):
         return self["id"]
 
     @abstractproperty
-    def links(self):
+    def embedded(self):
+        pass
+
+    @abstractmethod
+    def links(self, follow_mode):
         pass
 
     @abstractproperty
