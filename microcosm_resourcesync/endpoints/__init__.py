@@ -2,7 +2,7 @@
 Endpoint types.
 
 """
-from os.path import exists, split
+from os.path import abspath, exists, split
 
 from microcosm_resourcesync.endpoints.directory_endpoint import DirectoryEndpoint
 from microcosm_resourcesync.endpoints.http_endpoint import HTTPEndpoint
@@ -24,7 +24,7 @@ def endpoint_for(endpoint):
     if endpoint.endswith(".yaml") or endpoint.endswith(".yml"):
         return YAMLFileEndpoint(endpoint)
 
-    if endpoint.startswith("/") and exists(split(endpoint)[0]):
+    if exists(split(abspath(endpoint))[0]):
         return DirectoryEndpoint(endpoint)
 
     raise Exception
