@@ -19,27 +19,33 @@ The main usage is synchronizes from one or more `origin` endpoint to a `destinat
 
 Where endpoints may be any of the following:
 
- -  An HTTP(s) URL
+ -  An HTTP(S) URL
  -  A YAML file
  -  A directory path
  -  The literal `-` (for `stdin`/`stdout`)
 
 
-## Formatting
+## Assumptions
 
-Resources are assumed to be formatted as either JSON or YAML.
+Resources are assumed to adhere to certain REST conventions:
 
-Origin endpoints define their own format and destination endpoints define a *default* format; the latter can be
-overridden on the command line using `--json` or `--yaml`.
+ -  Resources are formatted as either JSON or YAML;
 
+    Origin endpoints define their own format and destination endpoints define a *default* format; the latter can be
+    overridden on the command line using `--json` or `--yaml`. Additional formatters can be added with code changes.
 
-## Representation
+ -  Resources define a few well-known attributes, including `id`, `type`, and `uri`.
 
-Each resources is expected to define a minimal set of attributes. (See also `Assumptions`, below).
+    These attributes are derived from the parsed resource dictionary using a schema.
 
-In order to extract these attributes from the resource data (after formatting), a schema needs to be applied. The
-default behavior assumes that resources use [HAL JSON](http://stateless.co/hal_specification.html) to define
-hypertext. An alternate, simple schema can also be selected using `--simple` (vs `--hal`).
+    The default behavior uses a schema based on the [HAL JSON](http://stateless.co/hal_specification.html) spec
+    and includes additional processing for hypertext (HATEOAS).
+
+    An alternate, simple schema can also be selected using `--simple` (vs `--hal`).
+
+ -  Resources can be managed remotely over HTTP(S) using `GET` or `PUT` on the `uri`.
+
+    Both operations are assumed to be idempotent.
 
 
 ## Capturing Data
@@ -74,20 +80,7 @@ If the resources define dependency relationships, a *topological* sort will be u
 are pushed in the correct order (e.g. assuming a remote server with no prior content).
 
 
-## Assumptions
+## Missing Features
 
-`resource-sync` makes the following assumptions about HTTP and resources:
-
- 1. Resources are encoded in either JSON or YAML.
- 2. Resources have a globally uniquely `URI`
- 3. Resources have a `type`
- 4. Resources have a type-specific `id`
- 5. Resources can be retrieved by using the HTTP `GET` operation against this URI
- 6. Resources can be replaced by using the HTTP `PUT` operation against this URI
- 7. Resources have the same URI path in every environment (but with different URI bases)
-
-
-## TODO
-
- -  Updating resources in batches
- -  Deletion from HTTP endpoints
+ -  There is currently no way to write resources in batches to HTTP(S) endpoints
+ -  There is currently no way to delete rewsources from HTTP(S) endpoints (based on a delta)

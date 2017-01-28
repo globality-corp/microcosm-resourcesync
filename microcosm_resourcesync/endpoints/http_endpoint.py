@@ -51,7 +51,6 @@ class HTTPEndpoint(Endpoint):
             # avoid processing resources cyclically
             if uri in seen:
                 continue
-            seen.add(uri)
 
             echo("Fetching resource(s) from: {}".format(uri), err=True)
             response = self.session.get(uri)
@@ -62,6 +61,8 @@ class HTTPEndpoint(Endpoint):
             resource_data = formatter.load(response.text)
 
             for resource in self.iter_resources(resource_data, schema_cls):
+                seen.add(resource.uri)
+
                 # ignore resources that do not have identifiers (e.g. collections)
                 # (but still follow their links)
                 if hasattr(resource, "id"):
