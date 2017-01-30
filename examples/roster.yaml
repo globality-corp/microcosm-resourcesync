@@ -1,0 +1,75 @@
+---
+id: 30
+name: Stephen Curry
+type: player
+uri: http://www.basketball-reference.com/players/c/curryst01.html
+---
+id: 11
+name: Klay Thompson
+type: player
+uri: http://www.basketball-reference.com/players/t/thompkl01.html
+---
+id: 9
+name: Andre Iguodala
+type: player
+uri: http://www.basketball-reference.com/players/i/iguodan01.html
+---
+id: 34
+name: Shaun Livingston
+type: player
+uri: http://www.basketball-reference.com/players/l/livinsh01.html
+---
+id: 5
+name: Kevon Looney
+type: player
+uri: http://www.basketball-reference.com/players/l/looneke01.html
+---
+id: 23
+name: Draymond Green
+type: player
+uri: http://www.basketball-reference.com/players/g/greendr01.html
+---
+id: 35
+name: Kevin Durant
+type: player
+uri: http://www.basketball-reference.com/players/d/duranke01.html
+---
+id: 3
+name: David West
+type: player
+uri: http://www.basketball-reference.com/players/w/westda01.html
+---
+id: 0
+name: Patrick McCaw
+type: player
+uri: http://www.basketball-reference.com/players/m/mccawpa01.html
+---
+id: 27
+name: Zaza Pachulia
+type: player
+uri: http://www.basketball-reference.com/players/p/pachuza01.html
+---
+id: 15
+name: Damian Jones
+type: player
+uri: http://www.basketball-reference.com/players/j/jonesda03.html
+---
+id: 18
+name: Anderson Varejao
+type: player
+uri: http://www.basketball-reference.com/players/v/varejan01.html
+---
+id: 20
+name: James Michale McAdoo
+type: player
+uri: http://www.basketball-reference.com/players/m/mcadoja01.html
+---
+id: 21
+name: Ian Clark
+type: player
+uri: http://www.basketball-reference.com/players/c/clarkia01.html
+---
+id: 1
+name: JaVale McGee
+type: player
+uri: http://www.basketball-reference.com/players/m/mcgeeja01.html
