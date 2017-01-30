@@ -2,8 +2,6 @@
 Command line entry points.
 
 """
-from sys import stderr
-
 from click import (
     argument,
     BadParameter,
@@ -11,10 +9,8 @@ from click import (
     echo,
     option,
     pass_context,
-    progressbar,
 )
 
-from microcosm_resourcesync.batching import batched
 from microcosm_resourcesync.endpoints import endpoint_for
 from microcosm_resourcesync.following import FollowMode
 from microcosm_resourcesync.formatters import Formatters
@@ -36,18 +32,10 @@ def validate_endpoints(context, param, value):
     ]
 
 
-def validate_positive(context, param, value):
+def validate_positive_int(context, param, value):
     if value < 1:
-        raise BadParameter("Must be positive")
+        raise BadParameter("Must be a positive integer")
     return value
-
-
-class NullIO(object):
-    def write(self, *args, **kwargs):
-        pass
-
-    def flush(self):
-        pass
 
 
 def sync(context, origins, destination, **kwargs):
@@ -69,14 +57,10 @@ def sync(context, origins, destination, **kwargs):
         resources.extend(origin.read(**kwargs))
 
     echo("Toposorting {} resources".format(len(resources)), err=True)
-    sorted_resources = toposorted(resources)
+    sorted_resources = list(toposorted(resources))
 
     echo("Writing resources to: {}".format(destination), err=True)
-    progress_file = stderr if destination.show_progressbar else NullIO()
-    with progressbar(length=len(resources), file=progress_file) as progressbar_:
-        for resource_batch in batched(sorted_resources, **kwargs):
-            destination.write(resource_batch, **kwargs)
-            progressbar_.update(len(resource_batch))
+    destination.write(sorted_resources, **kwargs)
 
 
 @command()
@@ -89,9 +73,10 @@ def sync(context, origins, destination, **kwargs):
 @option("--follow-all", "-a", "follow_mode", flag_value=FollowMode.ALL.name)
 @option("--follow-child", "-c", "follow_mode", flag_value=FollowMode.CHILD.name)
 @option("--follow-page", "-p", "follow_mode", flag_value=FollowMode.PAGE.name)
-@option("--batch-size", "-b", type=int, default=1, callback=validate_positive)
-@option("--max-attempts", "-m", type=int, default=1, callback=validate_positive)
-# XXX verbosity
+@option("--follow-none", "-n", "follow_mode", flag_value=FollowMode.NONE.name)
+@option("--batch-size", "-b", type=int, default=1, callback=validate_positive_int)
+@option("--max-attempts", "-m", type=int, default=1, callback=validate_positive_int)
+@option("--verbose", "-v", is_flag=True)
 @argument("origin", callback=validate_endpoints, nargs=-1)
 @argument("destination", callback=validate_endpoint, nargs=1)
 def main(context, origin, destination, formatter, resource_type, follow_mode, **kwargs):

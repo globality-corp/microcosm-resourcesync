@@ -37,6 +37,9 @@ class HALSchema(Schema):
         We use the convention that a link prefixed with "child:" is a non-parent link.
 
         """
+        if follow_mode == FollowMode.NONE:
+            return False
+
         if relation == "self":
             # don't follow self links
             return False

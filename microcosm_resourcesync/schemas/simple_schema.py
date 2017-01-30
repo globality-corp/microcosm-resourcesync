@@ -2,6 +2,7 @@
 A simplistic, non-HAL schema.
 
 """
+from microcosm_resourcesync.following import FollowMode
 from microcosm_resourcesync.schemas.base import Schema
 
 
@@ -15,6 +16,9 @@ class SimpleSchema(Schema):
         return self.get("embedded", [])
 
     def links(self, follow_mode):
+        if follow_mode == FollowMode.NONE:
+            return []
+
         # no filtering by follow mode yet
         return self.get("links", [])
 

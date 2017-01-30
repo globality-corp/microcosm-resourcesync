@@ -3,11 +3,13 @@ HTTP endpoint.
 
 """
 from six.moves.urllib.parse import urlparse, urlunparse
+from sys import stderr
 
-from click import echo
+from click import echo, progressbar
 from requests import Session
 from requests.exceptions import ConnectionError, HTTPError
 
+from microcosm_resourcesync.batching import batched
 from microcosm_resourcesync.endpoints.base import Endpoint
 from microcosm_resourcesync.formatters import Formatters
 
@@ -34,10 +36,6 @@ class HTTPEndpoint(Endpoint):
     def default_formatter(self):
         return Formatters.JSON.name
 
-    @property
-    def show_progressbar(self):
-        return True
-
     def read(self, schema_cls, follow_mode, **kwargs):
         """
         Read all YAML documents from the file.
@@ -52,13 +50,7 @@ class HTTPEndpoint(Endpoint):
             if uri in seen:
                 continue
 
-            echo("Fetching resource(s) from: {}".format(uri), err=True)
-            response = self.session.get(uri)
-            # XXX error handling, esp. 404
-            response.raise_for_status()
-            content_type = response.headers["Content-Type"]
-            formatter = Formatters.for_content_type(content_type).value
-            resource_data = formatter.load(response.text)
+            resource_data = self.read_resource_data(uri, **kwargs)
 
             for resource in self.iter_resources(resource_data, schema_cls):
                 seen.add(resource.uri)
@@ -70,28 +62,64 @@ class HTTPEndpoint(Endpoint):
 
                 stack.extend(resource.links(follow_mode))
 
-    def write(self, resources, formatter, batch_size, max_attempts, **kwargs):
+    def read_resource_data(self, uri, verbose, **kwargs):
+        """
+        Read resource data from a URI.
+
+        """
+        if verbose:
+            echo("Fetching resource(s) from: {}".format(uri), err=True)
+
+        response = self.session.get(uri)
+        # NB: if resources have broken hyperlinks, we can get a 404 here
+        if response.status_code >= 400 and verbose:
+            echo("Failed fetching resource(s) from: {}: {}".format(uri, response.text))
+        response.raise_for_status()
+        content_type = response.headers["Content-Type"]
+        formatter = Formatters.for_content_type(content_type).value
+        return formatter.load(response.text)
+
+    def write(self, resources, **kwargs):
         """
         Write resources as YAML to an HTTP endpoint.
 
-        NB: we currently ignore the batch size, but we should adopt the BulkUpdate convention
-        for batches of size greater than one.
+        """
+        with progressbar(length=len(resources), file=stderr) as progress_bar:
+            for resource_batch in batched(resources, **kwargs):
+                self.write_resource_batch(resource_batch, **kwargs)
+                progress_bar.update(len(resource_batch))
+
+    def write_resource_batch(self, resource_batch, **kwargs):
+        """
+        Write resources in a batch.
+
+        NB: batch support via the BulkUpdate convention (PATCH) not implemented yet
+        """
+        for resource in resource_batch:
+            self.write_resource(resource, **kwargs)
+
+    def write_resource(self, resource, formatter, max_attempts, **kwargs):
+        """
+        Write a single resource via Replace conntetion (PUT).
 
         """
-        for resource in resources:
-            uri = self.join_uri(resource.uri)
-            data = formatter.value.dump(resource)
-            # XXX debug output data
-            response = self.retry(
-                self.session.put,
-                uri=uri,
-                data=data,
-                headers={
-                    "Content-Type": formatter.value.preferred_mime_type,
-                },
-                max_attempts=max_attempts,
-            )
-            response.raise_for_status()
+        uri = self.join_uri(resource.uri)
+        data = formatter.value.dump(resource)
+
+        # NB: verbose logging the message content is obnoxius and interferes with the
+        # progressbar; if we need more information here, we probably need more levels
+        # of verbosity and a more traditional progress bar
+
+        response = self.retry(
+            self.session.put,
+            uri=uri,
+            data=data,
+            headers={
+                "Content-Type": formatter.value.preferred_mime_type,
+            },
+            max_attempts=max_attempts,
+        )
+        response.raise_for_status()
 
     def join_uri(self, uri):
         """

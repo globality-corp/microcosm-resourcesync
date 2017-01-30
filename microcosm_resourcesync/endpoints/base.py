@@ -2,8 +2,8 @@
 Endpoint interface
 
 """
-from os import makedirs
 from abc import ABCMeta, abstractmethod
+from os import makedirs
 from six import add_metaclass
 
 from microcosm_resourcesync.formatters import Formatters
@@ -17,11 +17,11 @@ class Endpoint(object):
     """
     @property
     def default_formatter(self):
-        return Formatters.YAML.name
+        """
+        The default formatter to use for this endpoint.
 
-    @property
-    def show_progressbar(self):
-        return False
+        """
+        return Formatters.YAML.name
 
     @abstractmethod
     def read(self, schema_cls, **kwargs):
