@@ -75,6 +75,7 @@ def sync(context, origins, destination, **kwargs):
 @option("--follow-page", "-p", "follow_mode", flag_value=FollowMode.PAGE.name)
 @option("--follow-none", "-n", "follow_mode", flag_value=FollowMode.NONE.name)
 @option("--batch-size", "-b", type=int, default=1, callback=validate_positive_int)
+@option("--limit", "-l", type=int, default=100, callback=validate_positive_int)
 @option("--max-attempts", "-m", type=int, default=1, callback=validate_positive_int)
 @option("--verbose", "-v", is_flag=True)
 @argument("origin", callback=validate_endpoints, nargs=-1)
