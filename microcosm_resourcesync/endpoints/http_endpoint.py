@@ -60,10 +60,13 @@ class HTTPEndpoint(Endpoint):
             for resource in self.iter_resources(resource_data, schema_cls):
                 seen.add(resource.uri)
 
-                # ignore resources that do not have identifiers (e.g. collections)
-                # (but still follow their links)
-                if hasattr(resource, "id"):
+                try:
+                    resource.id
                     yield resource
+                except:
+                    # ignore resources that do not have identifiers (e.g. collections)
+                    # (but still follow their links)
+                    pass
 
                 stack.extend(resource.links(follow_mode))
 
