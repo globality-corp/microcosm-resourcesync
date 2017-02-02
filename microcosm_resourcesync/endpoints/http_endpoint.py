@@ -82,7 +82,7 @@ class HTTPEndpoint(Endpoint):
             },
         )
         # NB: if resources have broken hyperlinks, we can get a 404 here
-        if response.status_code >= 400 and verbose:
+        if verbose and response.status_code >= 400:
             echo("Failed fetching resource(s) from: {}: {}".format(uri, response.text))
         response.raise_for_status()
         content_type = response.headers["Content-Type"]
