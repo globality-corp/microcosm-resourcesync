@@ -45,7 +45,6 @@ class HTTPEndpoint(Endpoint):
 
         while stack:
             uri = stack.pop()
-
             # avoid processing resources cyclically
             if uri in seen:
                 continue
