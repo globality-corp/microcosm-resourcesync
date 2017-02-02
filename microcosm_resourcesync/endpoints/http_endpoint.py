@@ -62,7 +62,7 @@ class HTTPEndpoint(Endpoint):
 
                 stack.extend(resource.links(follow_mode))
 
-    def read_resource_data(self, uri, verbose, **kwargs):
+    def read_resource_data(self, uri, verbose, limit, **kwargs):
         """
         Read resource data from a URI.
 
@@ -70,7 +70,12 @@ class HTTPEndpoint(Endpoint):
         if verbose:
             echo("Fetching resource(s) from: {}".format(uri), err=True)
 
-        response = self.session.get(uri)
+        response = self.session.get(
+            uri,
+            headers={
+                "X-Request-Limit": str(limit),
+            },
+        )
         # NB: if resources have broken hyperlinks, we can get a 404 here
         if response.status_code >= 400 and verbose:
             echo("Failed fetching resource(s) from: {}: {}".format(uri, response.text))
