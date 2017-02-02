@@ -2,6 +2,7 @@
 HTTP endpoint.
 
 """
+from os.path import commonprefix
 from six.moves.urllib.parse import urlparse, urlunparse
 from sys import stderr
 
@@ -14,6 +15,10 @@ from microcosm_resourcesync.endpoints.base import Endpoint
 from microcosm_resourcesync.formatters import Formatters
 
 
+class BatchingNotSupported(Exception):
+    pass
+
+
 class HTTPEndpoint(Endpoint):
     """
     Read and write resources for an HTTP URI.
@@ -22,6 +27,7 @@ class HTTPEndpoint(Endpoint):
     def __init__(self, uri):
         self.uri = uri
         self.session = Session()
+        self.allowed_methods_cache = dict()
 
     def __repr__(self):
         return "{}('{}')".format(
@@ -54,10 +60,13 @@ class HTTPEndpoint(Endpoint):
             for resource in self.iter_resources(resource_data, schema_cls):
                 seen.add(resource.uri)
 
-                # ignore resources that do not have identifiers (e.g. collections)
-                # (but still follow their links)
-                if hasattr(resource, "id"):
+                try:
+                    resource.id
                     yield resource
+                except:
+                    # ignore resources that do not have identifiers (e.g. collections)
+                    # (but still follow their links)
+                    pass
 
                 stack.extend(resource.links(follow_mode))
 
@@ -76,7 +85,7 @@ class HTTPEndpoint(Endpoint):
             },
         )
         # NB: if resources have broken hyperlinks, we can get a 404 here
-        if response.status_code >= 400 and verbose:
+        if verbose and response.status_code >= 400:
             echo("Failed fetching resource(s) from: {}: {}".format(uri, response.text))
         response.raise_for_status()
         content_type = response.headers["Content-Type"]
@@ -90,17 +99,72 @@ class HTTPEndpoint(Endpoint):
         """
         with progressbar(length=len(resources), file=stderr) as progress_bar:
             for resource_batch in batched(resources, **kwargs):
-                self.write_resource_batch(resource_batch, **kwargs)
+                self.write_resources(resource_batch, **kwargs)
                 progress_bar.update(len(resource_batch))
 
-    def write_resource_batch(self, resource_batch, **kwargs):
+    def write_resources(self, resource_batch, **kwargs):
+        """
+        Write several resources.
+
+        """
+        try:
+            # attempt to write resources in a batch
+            if len(resource_batch) > 1:
+                self.write_resource_batch(resource_batch, **kwargs)
+                return
+        except BatchingNotSupported:
+            # fall through
+            pass
+
+        # write resources once at a time
+        for resource in resource_batch:
+            self.write_resource(resource, **kwargs)
+
+    def write_resource_batch(self, resource_batch, formatter, max_attempts, **kwargs):
         """
         Write resources in a batch.
 
-        NB: batch support via the BulkUpdate convention (PATCH) not implemented yet
+        Uses the microcosm `BatchUpdate` convention to PATCH the base collection URI.
+
         """
-        for resource in resource_batch:
-            self.write_resource(resource, **kwargs)
+        data = formatter.value.dump(dict(
+            items=resource_batch,
+        ))
+
+        uri = commonprefix([
+            self.join_uri(resource.uri)
+            for resource in resource_batch
+        ]).rstrip("/")
+
+        allowed_methods = self.get_allowed_methods(uri)
+
+        if "PATCH" not in allowed_methods:
+            raise BatchingNotSupported()
+
+        response = self.retry(
+            self.session.patch,
+            uri=uri,
+            data=data,
+            headers={
+                "Content-Type": formatter.value.preferred_mime_type,
+            },
+            max_attempts=max_attempts,
+        )
+        response.raise_for_status()
+
+    def get_allowed_methods(self, uri):
+        """
+        Use an OPTIONS query to compute the allowed methods for a URI.
+
+        Cache these results locally to avoid extra requests when batching is not supported.
+
+        """
+        if uri in self.allowed_methods_cache:
+            return self.allowed_methods_cache[uri]
+        response = self.session.options(uri)
+        allowed_methods = response.headers.get("Allow", [])
+        self.allowed_methods_cache[uri] = allowed_methods
+        return allowed_methods
 
     def write_resource(self, resource, formatter, max_attempts, **kwargs):
         """
