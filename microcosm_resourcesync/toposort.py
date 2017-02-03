@@ -5,35 +5,16 @@ Topological sort.
 from collections import defaultdict
 
 
-TEMPORARY = object()
-VISITED = object()
-
-
-def visit(nodes, edges, visited, results, resource):
-    """
-    DFS visit function.
-
-    """
-    if visited.get(resource.uri) == VISITED:
-        return
-
-    if visited.get(resource.uri) == TEMPORARY:
-        raise Exception("Found cycle at {}".format(resource.uri))
-
-    visited[resource.uri] = TEMPORARY
-    for child_uri in edges[resource.uri]:
-        child = nodes[child_uri]
-        visit(nodes, edges, visited, results, child)
-    visited[resource.uri] = VISITED
-
-    results.append(resource)
-
-
 def toposorted(resources):
     """
     Perform a topological sort on the input resources.
 
-    Uses a DFS.
+    Resources are first sorted by type and id to generate a deterministic ordering and to group
+    resouces of the same type together (which minimizes the number of write operations required
+    when batching together writes of the same type).
+
+    The topological sort uses Kahn's algorithm, which is a stable sort and will preserve this
+    ordering; note that a DFS will produce a worst case ordering from the perspective of batching.
 
     """
     # sort resources first so we have a deterministic order of nodes with the same partial order
@@ -42,15 +23,36 @@ def toposorted(resources):
         key=lambda resource: (resource.type, resource.id),
     )
 
-    # build graph
-    nodes, edges = dict(), defaultdict(list)
+    # build incoming and outgoing edges
+    nodes = {
+        resource.uri
+        for resource in resources
+    }
+    incoming = defaultdict(set)
+    outgoing = defaultdict(set)
     for resource in resources:
-        nodes[resource.uri] = resource
-        for parent_uri in resource.parents:
-            edges[parent_uri].append(resource.uri)
+        for parent in resource.parents:
+            if parent not in nodes:
+                # ignore references that lead outside of the current graph
+                continue
+            incoming[resource.uri].add(parent)
+            outgoing[parent].add(resource.uri)
 
-    # DFS
-    results, visited = [], {}
-    for resource in resources:
-        visit(nodes, edges, visited, results, resource)
-    return reversed(results)
+    results = []
+    while resources:
+        remaining = []
+        for resource in resources:
+            if incoming[resource.uri]:
+                # node still has incoming edges
+                remaining.append(resource)
+                continue
+
+            results.append(resource)
+            for child in outgoing[resource.uri]:
+                incoming[child].remove(resource.uri)
+
+        if len(resources) == len(remaining):
+            raise Exception("Cycle detected")
+        resources = remaining
+
+    return results

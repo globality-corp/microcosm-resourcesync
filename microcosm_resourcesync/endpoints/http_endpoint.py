@@ -120,17 +120,13 @@ class HTTPEndpoint(Endpoint):
         for resource in resource_batch:
             self.write_resource(resource, **kwargs)
 
-    def write_resource_batch(self, resource_batch, formatter, max_attempts, **kwargs):
+    def write_resource_batch(self, resource_batch, formatter, max_attempts=2, verbose=False, **kwargs):
         """
         Write resources in a batch.
 
         Uses the microcosm `BatchUpdate` convention to PATCH the base collection URI.
 
         """
-        data = formatter.value.dump(dict(
-            items=resource_batch,
-        ))
-
         uri = commonprefix([
             self.join_uri(resource.uri)
             for resource in resource_batch
@@ -140,6 +136,13 @@ class HTTPEndpoint(Endpoint):
 
         if "PATCH" not in allowed_methods:
             raise BatchingNotSupported()
+
+        if verbose:
+            echo("Batch updating resource(s) for: {}".format(uri), err=True)
+
+        data = formatter.value.dump(dict(
+            items=resource_batch,
+        ))
 
         response = self.retry(
             self.session.patch,
