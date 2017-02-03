@@ -24,10 +24,17 @@ def toposorted(resources):
     )
 
     # build incoming and outgoing edges
+    nodes = {
+        resource.uri
+        for resource in resources
+    }
     incoming = defaultdict(set)
     outgoing = defaultdict(set)
     for resource in resources:
         for parent in resource.parents:
+            if parent not in nodes:
+                # ignore references that lead outside of the current graph
+                continue
             incoming[resource.uri].add(parent)
             outgoing[parent].add(resource.uri)
 
