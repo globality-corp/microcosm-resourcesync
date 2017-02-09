@@ -9,6 +9,7 @@ from click import (
     echo,
     option,
     pass_context,
+    prompt,
 )
 
 from microcosm_resourcesync.endpoints import endpoint_for
@@ -70,6 +71,7 @@ def sync(context, origins, destination, **kwargs):
 @option("--hal", "resource_type", flag_value=Schemas.HAL.name, help="Use HAL JSON schema (default)")
 @option("--simple", "-s", "resource_type", flag_value=Schemas.SIMPLE.name, help="Use Simple JSON schema")
 @option("--rm", "remove", is_flag=True)
+@option("--username")
 @option("--follow-all", "-a", "follow_mode", flag_value=FollowMode.ALL.name)
 @option("--follow-child", "-c", "follow_mode", flag_value=FollowMode.CHILD.name)
 @option("--follow-page", "-p", "follow_mode", flag_value=FollowMode.PAGE.name)
@@ -80,11 +82,12 @@ def sync(context, origins, destination, **kwargs):
 @option("--verbose", "-v", is_flag=True)
 @argument("origin", callback=validate_endpoints, nargs=-1)
 @argument("destination", callback=validate_endpoint, nargs=1)
-def main(context, origin, destination, formatter, resource_type, follow_mode, **kwargs):
+def main(context, origin, destination, formatter, resource_type, follow_mode, username, **kwargs):
     """
     Synchronized resources from origin endpoint to destination endpoint.
 
     """
+    auth = (username, prompt("Password", hide_input=True, err=True)) if username else None
     formatter = Formatters[formatter or destination.default_formatter]
     schema_cls = Schemas[resource_type or Schemas.HAL.name].value
     follow_mode = FollowMode[follow_mode or FollowMode.PAGE.name]
@@ -96,5 +99,6 @@ def main(context, origin, destination, formatter, resource_type, follow_mode, **
         follow_mode=follow_mode,
         formatter=formatter,
         schema_cls=schema_cls,
+        auth=auth,
         **kwargs
     )

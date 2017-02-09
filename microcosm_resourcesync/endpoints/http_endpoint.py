@@ -70,7 +70,7 @@ class HTTPEndpoint(Endpoint):
 
                 stack.extend(resource.links(follow_mode))
 
-    def read_resource_data(self, uri, verbose, limit, **kwargs):
+    def read_resource_data(self, uri, verbose, limit, auth=None, **kwargs):
         """
         Read resource data from a URI.
 
@@ -83,6 +83,7 @@ class HTTPEndpoint(Endpoint):
             headers={
                 "X-Request-Limit": str(limit),
             },
+            auth=auth,
         )
         # NB: if resources have broken hyperlinks, we can get a 404 here
         if verbose and response.status_code >= 400:
@@ -120,7 +121,7 @@ class HTTPEndpoint(Endpoint):
         for resource in resource_batch:
             self.write_resource(resource, **kwargs)
 
-    def write_resource_batch(self, resource_batch, formatter, max_attempts=2, verbose=False, **kwargs):
+    def write_resource_batch(self, resource_batch, formatter, max_attempts=2, verbose=False, auth=None, **kwargs):
         """
         Write resources in a batch.
 
@@ -147,6 +148,7 @@ class HTTPEndpoint(Endpoint):
         response = self.retry(
             self.session.patch,
             uri=uri,
+            auth=auth,
             data=data,
             headers={
                 "Content-Type": formatter.value.preferred_mime_type,
@@ -169,7 +171,7 @@ class HTTPEndpoint(Endpoint):
         self.allowed_methods_cache[uri] = allowed_methods
         return allowed_methods
 
-    def write_resource(self, resource, formatter, max_attempts, **kwargs):
+    def write_resource(self, resource, formatter, max_attempts, auth=None, **kwargs):
         """
         Write a single resource via Replace conntetion (PUT).
 
@@ -184,6 +186,7 @@ class HTTPEndpoint(Endpoint):
         response = self.retry(
             self.session.put,
             uri=uri,
+            auth=auth,
             data=data,
             headers={
                 "Content-Type": formatter.value.preferred_mime_type,

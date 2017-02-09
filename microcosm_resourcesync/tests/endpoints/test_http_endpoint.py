@@ -187,6 +187,7 @@ class TestHTTPEndpoint(object):
         for resource in resources:
             mocked_put.assert_any_call(
                 resource.uri,
+                auth=None,
                 data=Formatters.JSON.value.dump(resource),
                 headers={'Content-Type': 'application/json'}
             )
@@ -215,6 +216,7 @@ class TestHTTPEndpoint(object):
         assert_that(mocked_patch.call_count, is_(equal_to(2)))
         mocked_patch.assert_any_call(
             "http://example.com/api/foo",
+            auth=None,
             data=Formatters.JSON.value.dump(dict(
                 items=resources[0:2],
             )),
@@ -222,6 +224,7 @@ class TestHTTPEndpoint(object):
         )
         mocked_patch.assert_any_call(
             "http://example.com/api/foo",
+            auth=None,
             data=Formatters.JSON.value.dump(dict(
                 items=resources[2:],
             )),
