@@ -4,6 +4,21 @@ Topological sort.
 """
 from collections import defaultdict
 
+from click import echo
+
+
+def uniq(sorted_items):
+    """
+    Generator form of Unix `uniq`.
+
+    """
+    prev = None
+    for item in sorted_items:
+        if item == prev:
+            continue
+        yield item
+        prev = item
+
 
 def toposorted(resources):
     """
@@ -18,16 +33,19 @@ def toposorted(resources):
 
     """
     # sort resources first so we have a deterministic order of nodes with the same partial order
-    resources = sorted(
+    resources = list(uniq(sorted(
         resources,
         key=lambda resource: (resource.type, resource.id),
-    )
+    )))
+
+    echo("Toposorting {} resources".format(len(resources)), err=True)
 
     # build incoming and outgoing edges
     nodes = {
         resource.uri
         for resource in resources
     }
+
     incoming = defaultdict(set)
     outgoing = defaultdict(set)
     for resource in resources:
