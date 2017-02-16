@@ -2,11 +2,11 @@
 YAML Formatter
 
 """
-from yaml import load, safe_dump
+from yaml import dump, load
 try:
-    from yaml import CSafeLoader as SafeLoader
+    from yaml import CSafeDumper as SafeDumper, CSafeLoader as SafeLoader
 except ImportError:
-    from yaml import SafeLoader
+    from yaml import SafeDumper, SafeLoader
 
 from microcosm_resourcesync.formatters.base import Formatter
 
@@ -17,7 +17,7 @@ class YAMLFormatter(Formatter):
         return load(data, Loader=SafeLoader)
 
     def dump(self, dct):
-        return safe_dump(
+        return dump(
             dict(dct),
             # show every document in its own block
             default_flow_style=False,
@@ -26,6 +26,7 @@ class YAMLFormatter(Formatter):
             # follow (modern) PEP8 max line length and indent
             width=99,
             indent=4,
+            Dumper=SafeDumper,
         )
 
     @property
