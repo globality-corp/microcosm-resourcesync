@@ -2,7 +2,11 @@
 YAML Formatter
 
 """
-from yaml import safe_dump, safe_load
+from yaml import load, safe_dump
+try:
+    from yaml import CSafeLoader as SafeLoader
+except ImportError:
+    from yaml import SafeLoader
 
 from microcosm_resourcesync.formatters.base import Formatter
 
@@ -10,7 +14,7 @@ from microcosm_resourcesync.formatters.base import Formatter
 class YAMLFormatter(Formatter):
 
     def load(self, data):
-        return safe_load(data)
+        return load(data, Loader=SafeLoader)
 
     def dump(self, dct):
         return safe_dump(
