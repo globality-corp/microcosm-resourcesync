@@ -44,7 +44,9 @@ class DirectoryEndpoint(Endpoint):
                 _, ext = splitext(filename)
                 formatter = Formatters.for_extension(ext).value
                 with open(join(dirpath, filename), "r") as file_:
-                    yield schema_cls(formatter.load(file_.read()))
+                    data = file_.read()
+                    dct = formatter.load(data)
+                    yield schema_cls(dct)
 
     def write(self, resources, formatter, remove=False, **kwargs):
         """
