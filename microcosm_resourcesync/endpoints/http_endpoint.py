@@ -51,24 +51,35 @@ class HTTPEndpoint(Endpoint):
 
         while stack:
             uri = stack.pop()
-            # avoid processing resources cyclically
             if uri in seen:
                 continue
 
             resource_data = self.read_resource_data(uri, **kwargs)
-
             for resource in self.iter_resources(resource_data, schema_cls):
-                seen.add(resource.uri)
-
                 try:
                     resource.id
-                    yield resource
+                    if resource.uri not in seen:
+                        yield resource
+                        seen.add(resource.uri)
                 except:
                     # ignore resources that do not have identifiers (e.g. collections)
-                    # (but still follow their links)
                     pass
 
-                stack.extend(resource.links(follow_mode))
+                # expand resource links, preferring pagination because it returns batches
+                page_links = [
+                    link.uri
+                    for link in resource.links(follow_mode)
+                    if link.uri not in seen and link.relation in ("prev", "next")
+                ]
+                other_links = [
+                    link.uri
+                    for link in resource.links(follow_mode)
+                    if link.uri not in seen and link.relation not in ("prev", "next")
+                ]
+                stack = other_links + stack + page_links
+
+            # done processing this uri (in paginated cases, this uri won't match any resource.uri)
+            seen.add(uri)
 
     def read_resource_data(self, uri, verbose, limit, auth=None, **kwargs):
         """

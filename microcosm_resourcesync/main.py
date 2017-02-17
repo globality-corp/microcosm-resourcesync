@@ -57,6 +57,7 @@ def sync(context, origins, destination, **kwargs):
         echo("Reading resources from: {}".format(origin), err=True)
         resources.extend(origin.read(**kwargs))
 
+    echo("Toposorting {} resources".format(len(resources)), err=True)
     sorted_resources = list(toposorted(resources))
 
     echo("Writing resources to: {}".format(destination), err=True)

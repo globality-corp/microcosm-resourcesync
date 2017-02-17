@@ -3,7 +3,7 @@ A schema using HAL JSON linking conventions.
 
 """
 from microcosm_resourcesync.following import FollowMode
-from microcosm_resourcesync.schemas.base import Schema
+from microcosm_resourcesync.schemas.base import Link, Schema
 
 
 class HALSchema(Schema):
@@ -17,7 +17,7 @@ class HALSchema(Schema):
 
     def links(self, follow_mode):
         return [
-            uri
+            Link(relation, uri)
             for relation, uri in self.iter_links()
             if self.should_follow(relation, uri, follow_mode)
         ]

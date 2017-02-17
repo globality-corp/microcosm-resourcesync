@@ -3,7 +3,11 @@ Schema interface.
 
 """
 from abc import ABCMeta, abstractmethod, abstractproperty
+from collections import namedtuple
 from six import add_metaclass
+
+
+Link = namedtuple("Link", ["relation", "uri"])
 
 
 @add_metaclass(ABCMeta)
@@ -33,7 +37,7 @@ class Schema(dict):
     @abstractmethod
     def links(self, follow_mode):
         """
-        The resource should be able to extract appropriate hypertext for the `follow_mode`.
+        The resource should be able to extract appropriate `Links` for the `follow_mode`.
 
         """
         pass
