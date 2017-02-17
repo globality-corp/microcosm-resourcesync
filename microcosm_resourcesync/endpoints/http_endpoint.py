@@ -47,10 +47,10 @@ class HTTPEndpoint(Endpoint):
         Read all YAML documents from the file.
 
         """
-        stack, seen = [self.uri], set()
+        deque, seen = [self.uri], set()
 
-        while stack:
-            uri = stack.pop()
+        while deque:
+            uri = deque.pop()
             if uri in seen:
                 continue
 
@@ -76,7 +76,7 @@ class HTTPEndpoint(Endpoint):
                     for link in resource.links(follow_mode)
                     if link.uri not in seen and link.relation not in ("prev", "next")
                 ]
-                stack = other_links + stack + page_links
+                deque = other_links + deque + page_links
 
             # done processing this uri (in paginated cases, this uri won't match any resource.uri)
             seen.add(uri)
