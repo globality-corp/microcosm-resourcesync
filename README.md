@@ -11,6 +11,24 @@ This process is especially useful if the intermediate format lives in version co
 and merging well.
 
 
+## Installation
+
+Install into a virtualenv:
+
+    mkvirtualenv microcosm-resourcesync --python=python3
+    pip install -e .
+
+
+## Using libyaml
+
+YAML performance is significantly better using `libyaml`. On OSX:
+
+    brew install yaml-cpp libyaml
+    pip uninstall PyYAML
+    # installing with pip appears not to work
+    python -m easy_install pyyaml
+
+
 ## Usage
 
 The main usage is synchronizes from one or more `origin` endpoint to a `destination` endpoint:
