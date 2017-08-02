@@ -20,6 +20,7 @@ setup(
         "enum34>=1.1.6",
         "PyYAML>=3.12",
         "requests>=2.13.0",
+        "six>=1.1.10",
     ],
     setup_requires=[
         "nose>=1.3.7",
