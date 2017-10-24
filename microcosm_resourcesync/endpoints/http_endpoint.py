@@ -61,7 +61,7 @@ class HTTPEndpoint(Endpoint):
                     if resource.uri not in seen:
                         yield resource
                         seen.add(resource.uri)
-                except:
+                except Exception:
                     # ignore resources that do not have identifiers (e.g. collections)
                     pass
 
