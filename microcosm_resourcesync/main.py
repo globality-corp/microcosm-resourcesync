@@ -22,7 +22,7 @@ from microcosm_resourcesync.toposort import toposorted
 def validate_endpoint(context, param, value):
     try:
         return endpoint_for(value)
-    except:
+    except Exception:
         raise BadParameter("Unsupported endpoint format: {}".format(value))
 
 
