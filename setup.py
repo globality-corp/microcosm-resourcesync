@@ -2,7 +2,7 @@
 from setuptools import find_packages, setup
 
 project = "microcosm-resourcesync"
-version = "0.8.1"
+version = "1.0.0"
 
 setup(
     name=project,
@@ -19,8 +19,7 @@ setup(
         "click>=6.7",
         "enum34>=1.1.6",
         "PyYAML>=3.12",
-        "requests>=2.13.0",
-        "six>=1.1.10",
+        "requests>=2.18.4",
     ],
     setup_requires=[
         "nose>=1.3.7",

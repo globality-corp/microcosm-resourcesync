@@ -3,7 +3,7 @@ HTTP endpoint.
 
 """
 from os.path import commonprefix
-from six.moves.urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 from sys import stderr
 
 from click import echo, progressbar

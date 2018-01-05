@@ -3,11 +3,9 @@ Formatter interface
 
 """
 from abc import ABCMeta, abstractmethod, abstractproperty
-from six import add_metaclass
 
 
-@add_metaclass(ABCMeta)
-class Formatter(object):
+class Formatter(metaclass=ABCMeta):
     """
     A format encodes a resource to/from a dictionary.
 

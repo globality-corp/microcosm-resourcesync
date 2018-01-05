@@ -4,14 +4,12 @@ Schema interface.
 """
 from abc import ABCMeta, abstractmethod, abstractproperty
 from collections import namedtuple
-from six import add_metaclass
 
 
 Link = namedtuple("Link", ["relation", "uri"])
 
 
-@add_metaclass(ABCMeta)
-class Schema(dict):
+class Schema(dict, metaclass=ABCMeta):
     """
     A schema wraps a dictionary and defines a `uri`, `id`, `type`, etc.
 
