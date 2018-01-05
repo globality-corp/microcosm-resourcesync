@@ -51,7 +51,7 @@ def set_response(mock, *resources):
     ]
 
 
-class TestHTTPEndpoint(object):
+class TestHTTPEndpoint:
 
     def setup(self):
         self.uri = "http://example.com/api"

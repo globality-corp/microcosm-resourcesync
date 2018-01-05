@@ -4,13 +4,11 @@ Endpoint interface
 """
 from abc import ABCMeta, abstractmethod
 from os import makedirs
-from six import add_metaclass
 
 from microcosm_resourcesync.formatters import Formatters
 
 
-@add_metaclass(ABCMeta)
-class Endpoint(object):
+class Endpoint(metaclass=ABCMeta):
     """
     An endpoint is able to read and write resources.
 
