@@ -143,9 +143,6 @@ class TestHTTPEndpoint:
                         self=dict(
                             href="http://example.com/api/foo?offset=2&limit2",
                         ),
-                        prev=dict(
-                            href="http://example.com/api/foo?offset=0&limit=2",
-                        ),
                     ),
                     items=[
                         hal_resource("http://example.com/api/foo/3"),
