@@ -3,6 +3,7 @@ HTTP Endpoint tests
 
 """
 from json import dumps
+from unittest.mock import patch, Mock
 
 from hamcrest import (
     assert_that,
@@ -10,7 +11,6 @@ from hamcrest import (
     has_length,
     is_,
 )
-from mock import patch, Mock
 
 from microcosm_resourcesync.endpoints import HTTPEndpoint
 from microcosm_resourcesync.following import FollowMode
