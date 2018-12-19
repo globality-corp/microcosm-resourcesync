@@ -4,9 +4,9 @@ YAML Formatter
 """
 from yaml import dump, load
 try:
-    from yaml import CSafeDumper as SafeDumper, CSafeLoader as SafeLoader
+    from yaml import CSafeDumper as SafeDumper, CSafeLoader as SafeLoader  # type: ignore
 except ImportError:
-    from yaml import SafeDumper, SafeLoader
+    from yaml import SafeDumper, SafeLoader  # type: ignore
 
 from microcosm_resourcesync.formatters.base import Formatter
 
