@@ -185,7 +185,7 @@ class TestHTTPEndpoint:
             mocked_put.assert_any_call(
                 resource.uri,
                 auth=None,
-                data=Formatters.JSON.value.dump(resource),
+                data=Formatters.JSON.value.dump(resource.to_http_data()),
                 headers={'Content-Type': 'application/json'}
             )
 
@@ -215,7 +215,7 @@ class TestHTTPEndpoint:
             "http://example.com/api/foo",
             auth=None,
             data=Formatters.JSON.value.dump(dict(
-                items=resources[0:2],
+                items=[item.to_http_data() for item in resources[0:2]],
             )),
             headers={'Content-Type': 'application/json'}
         )
@@ -223,7 +223,7 @@ class TestHTTPEndpoint:
             "http://example.com/api/foo",
             auth=None,
             data=Formatters.JSON.value.dump(dict(
-                items=resources[2:],
+                items=[item.to_http_data() for item in resources[2:]],
             )),
             headers={'Content-Type': 'application/json'}
         )

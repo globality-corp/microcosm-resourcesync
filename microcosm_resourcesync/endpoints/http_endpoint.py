@@ -153,7 +153,10 @@ class HTTPEndpoint(Endpoint):
             echo("Batch updating resource(s) for: {}".format(uri), err=True)
 
         data = formatter.value.dump(dict(
-            items=resource_batch,
+            items=[
+                resource.to_http_data()
+                for resource in resource_batch
+            ],
         ))
 
         response = self.retry(
@@ -188,12 +191,11 @@ class HTTPEndpoint(Endpoint):
 
         """
         uri = self.join_uri(resource.uri)
-        data = formatter.value.dump(resource)
+        data = formatter.value.dump(resource.to_http_data())
 
         # NB: verbose logging the message content is obnoxius and interferes with the
         # progressbar; if we need more information here, we probably need more levels
         # of verbosity and a more traditional progress bar
-
         response = self.retry(
             self.session.put,
             uri=uri,

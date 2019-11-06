@@ -5,12 +5,31 @@ A schema using HAL JSON linking conventions.
 from microcosm_resourcesync.following import FollowMode
 from microcosm_resourcesync.schemas.base import Link, Schema
 
+HTTP_EXCLUDED_KEYS = ["id", "_links"]
+
 
 class HALSchema(Schema):
     """
     A schema that implements HAL JSON linking.
 
     """
+    def to_http_data(self):
+        """
+        We now use marshmallow 3, which means strict validation of input.
+        Extra fields trigger 422 errors; there are some keys that we know will
+        never be part of an input resource, remove them here.
+
+        Note: the general solution would be to pass in a separate schema for every resource
+        we deal with; this is a simpler fix that works with how we use `microcosm-resourcesync`
+        in practice. It may not always work.
+
+        """
+        return {
+            key: value
+            for key, value in self.items()
+            if key not in HTTP_EXCLUDED_KEYS
+        }
+
     @property
     def embedded(self):
         return self.get("items", [])
