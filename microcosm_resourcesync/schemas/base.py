@@ -14,7 +14,7 @@ class Schema(dict, metaclass=ABCMeta):
     A schema wraps a dictionary and defines a `uri`, `id`, `type`, etc.
 
     """
-    def to_http_data(self):
+    def to_filtered_body(self):
         return self
 
     @property

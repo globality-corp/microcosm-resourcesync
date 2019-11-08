@@ -154,7 +154,7 @@ class HTTPEndpoint(Endpoint):
 
         data = formatter.value.dump(dict(
             items=[
-                resource.to_http_data()
+                resource.to_filtered_body()
                 for resource in resource_batch
             ],
         ))
@@ -191,7 +191,7 @@ class HTTPEndpoint(Endpoint):
 
         """
         uri = self.join_uri(resource.uri)
-        data = formatter.value.dump(resource.to_http_data())
+        data = formatter.value.dump(resource.to_filtered_body())
 
         # NB: verbose logging the message content is obnoxius and interferes with the
         # progressbar; if we need more information here, we probably need more levels

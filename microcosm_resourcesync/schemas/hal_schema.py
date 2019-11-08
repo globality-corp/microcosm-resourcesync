@@ -13,7 +13,7 @@ class HALSchema(Schema):
     A schema that implements HAL JSON linking.
 
     """
-    def to_http_data(self):
+    def to_filtered_body(self):
         """
         We now use marshmallow 3, which means strict validation of input.
         Extra fields trigger 422 errors; there are some keys that we know will
