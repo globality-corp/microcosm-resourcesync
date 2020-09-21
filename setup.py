@@ -20,6 +20,8 @@ setup(
         "click>=6.7",
         "PyYAML>=3.12",
         "requests>=2.18.4",
+        # 09-21-2020: pin for enforce_white_space issue @pierce
+        "isort<5",
     ],
     setup_requires=[
         "nose>=1.3.7",
