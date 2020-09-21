@@ -3,8 +3,8 @@ Command line entry points.
 
 """
 from click import (
-    argument,
     BadParameter,
+    argument,
     command,
     echo,
     option,

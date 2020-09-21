@@ -3,7 +3,7 @@ HTTP Endpoint tests
 
 """
 from json import dumps
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from hamcrest import (
     assert_that,

@@ -3,12 +3,15 @@ YAML Formatter
 
 """
 from yaml import dump, load
+
+from microcosm_resourcesync.formatters.base import Formatter
+
+
 try:
     from yaml import CSafeDumper as SafeDumper, CSafeLoader as SafeLoader  # type: ignore
 except ImportError:
     from yaml import SafeDumper, SafeLoader  # type: ignore
 
-from microcosm_resourcesync.formatters.base import Formatter
 
 
 class YAMLFormatter(Formatter):
