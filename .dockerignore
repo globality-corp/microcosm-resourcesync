@@ -1,6 +1,6 @@
 *
 !microcosm_resourcesync
-microcosm_resourcesync/test*
+microcosm_resourcesync/tests
 !dist/*-none-any.whl
 !entrypoint.sh
 !MANIFEST.in
