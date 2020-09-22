@@ -13,7 +13,6 @@ except ImportError:
     from yaml import SafeDumper, SafeLoader  # type: ignore
 
 
-
 class YAMLFormatter(Formatter):
 
     def load(self, data):
