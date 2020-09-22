@@ -3,6 +3,7 @@ HTTP Endpoint tests
 
 """
 from json import dumps
+from unittest.mock import Mock, patch
 
 from hamcrest import (
     assert_that,
@@ -10,7 +11,6 @@ from hamcrest import (
     has_length,
     is_,
 )
-from mock import patch, Mock
 
 from microcosm_resourcesync.endpoints import HTTPEndpoint
 from microcosm_resourcesync.following import FollowMode
@@ -142,9 +142,6 @@ class TestHTTPEndpoint:
                     _links=dict(
                         self=dict(
                             href="http://example.com/api/foo?offset=2&limit2",
-                        ),
-                        prev=dict(
-                            href="http://example.com/api/foo?offset=0&limit=2",
                         ),
                     ),
                     items=[

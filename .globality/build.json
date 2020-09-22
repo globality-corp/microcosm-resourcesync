@@ -1,0 +1,10 @@
+{
+  "params": {
+    "name": "microcosm-resourcesync",
+    "pypi": {
+      "repository": "pypi"
+    }
+  },
+  "type": "python-library",
+  "version": "2020.37.0"
+}

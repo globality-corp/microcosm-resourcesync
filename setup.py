@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 from setuptools import find_packages, setup
 
+
 project = "microcosm-resourcesync"
-version = "1.0.0"
+version = "1.0.1"
 
 setup(
     name=project,
@@ -14,10 +15,10 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     include_package_data=True,
     zip_safe=False,
+    python_requires=">=3.6",
     keywords="microcosm",
     install_requires=[
         "click>=6.7",
-        "enum34>=1.1.6",
         "PyYAML>=3.12",
         "requests>=2.18.4",
     ],
@@ -33,7 +34,6 @@ setup(
     },
     tests_require=[
         "coverage>=4.3.4",
-        "mock>=2.0.0",
         "PyHamcrest>=1.9.0",
     ],
 )
