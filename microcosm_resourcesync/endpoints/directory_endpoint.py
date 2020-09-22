@@ -3,7 +3,12 @@ Read/write from a directory tree.
 
 """
 from os import walk
-from os.path import exists, isdir, join, splitext
+from os.path import (
+    exists,
+    isdir,
+    join,
+    splitext,
+)
 from shutil import rmtree
 
 from click import ClickException

@@ -2,13 +2,10 @@
 Test batching.
 
 """
-from hamcrest import (
-    assert_that,
-    contains,
-)
+from hamcrest import assert_that, contains
 
-from microcosm_resourcesync.schemas import SimpleSchema
 from microcosm_resourcesync.batching import batched
+from microcosm_resourcesync.schemas import SimpleSchema
 
 
 resources = [

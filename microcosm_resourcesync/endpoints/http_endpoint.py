@@ -3,8 +3,8 @@ HTTP endpoint.
 
 """
 from os.path import commonprefix
-from urllib.parse import urlparse, urlunparse
 from sys import stderr
+from urllib.parse import urlparse, urlunparse
 
 from click import echo, progressbar
 from requests import Session

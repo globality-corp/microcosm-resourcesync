@@ -2,11 +2,7 @@
 Formatter tests.
 
 """
-from hamcrest import (
-    assert_that,
-    equal_to,
-    is_,
-)
+from hamcrest import assert_that, equal_to, is_
 
 from microcosm_resourcesync.formatters import Formatters
 
