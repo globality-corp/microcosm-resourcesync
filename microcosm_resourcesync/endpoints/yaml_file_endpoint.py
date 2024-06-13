@@ -2,10 +2,9 @@
 Read/write from a YAML file.
 
 """
+from click import ClickException
 from os import unlink
 from os.path import dirname, exists
-
-from click import ClickException
 from yaml import safe_load_all
 
 from microcosm_resourcesync.endpoints.base import Endpoint

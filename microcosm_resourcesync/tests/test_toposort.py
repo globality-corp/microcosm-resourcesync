@@ -2,9 +2,8 @@
 Toposort test.
 
 """
-from random import shuffle
-
 from hamcrest import assert_that, contains
+from random import shuffle
 
 from microcosm_resourcesync.schemas import SimpleSchema
 from microcosm_resourcesync.toposort import toposorted

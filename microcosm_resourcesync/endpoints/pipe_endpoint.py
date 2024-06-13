@@ -3,7 +3,6 @@ Read/write from stdin/stdout
 
 """
 from sys import stdin, stdout
-
 from yaml import safe_load_all
 
 from microcosm_resourcesync.endpoints.base import Endpoint

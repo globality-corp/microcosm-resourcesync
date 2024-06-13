@@ -16,7 +16,7 @@ class FollowMode(Enum):
      -  Follow no links (NONE)
 
     """
-    ALL = u"ALL"
-    CHILD = u"CHILD"
-    PAGE = u"PAGE"
-    NONE = u"NONE"
+    ALL = "ALL"
+    CHILD = "CHILD"
+    PAGE = "PAGE"
+    NONE = "NONE"
