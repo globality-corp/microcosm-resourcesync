@@ -19,7 +19,7 @@ class Formatters(Enum):
             if content_type in formatter.value.mime_types:
                 return formatter
 
-        raise Exception("Unsupported content type: {}".format(content_type))
+        raise Exception(f"Unsupported content type: {content_type}")
 
     @classmethod
     def for_extension(cls, ext):
@@ -27,4 +27,4 @@ class Formatters(Enum):
             if ext == formatter.value.extension:
                 return formatter
 
-        raise Exception("Unsupported extension: {}".format(ext))
+        raise Exception(f"Unsupported extension: {ext}")

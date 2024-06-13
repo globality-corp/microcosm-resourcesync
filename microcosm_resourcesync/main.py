@@ -23,7 +23,7 @@ def validate_endpoint(context, param, value):
     try:
         return endpoint_for(value)
     except Exception:
-        raise BadParameter("Unsupported endpoint format: {}".format(value))
+        raise BadParameter(f"Unsupported endpoint format: {value}")
 
 
 def validate_endpoints(context, param, value):
@@ -54,13 +54,13 @@ def sync(context, origins, destination, **kwargs):
 
     resources = []
     for origin in origins:
-        echo("Reading resources from: {}".format(origin), err=True)
+        echo(f"Reading resources from: {origin}", err=True)
         resources.extend(origin.read(**kwargs))
 
-    echo("Toposorting {} resources".format(len(resources)), err=True)
+    echo(f"Toposorting {len(resources)} resources", err=True)
     sorted_resources = list(toposorted(resources))
 
-    echo("Writing resources to: {}".format(destination), err=True)
+    echo(f"Writing resources to: {destination}", err=True)
     destination.write(sorted_resources, **kwargs)
 
 

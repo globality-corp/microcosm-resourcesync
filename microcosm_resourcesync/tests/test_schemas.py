@@ -9,7 +9,7 @@ from microcosm_resourcesync.schemas import HALSchema, SimpleSchema
 
 ID = "c7f12ba5885f4b47bfafaa583cd5a097"
 TYPE = "foo"
-URI = "http://example.com/{}/{}".format(TYPE, ID)
+URI = f"http://example.com/{TYPE}/{ID}"
 
 HAL_EXAMPLE = dict(
     id=ID,
