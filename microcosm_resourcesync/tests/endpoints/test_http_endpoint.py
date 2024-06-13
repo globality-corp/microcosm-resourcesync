@@ -2,15 +2,14 @@
 HTTP Endpoint tests
 
 """
-from json import dumps
-from unittest.mock import Mock, patch
-
 from hamcrest import (
     assert_that,
     equal_to,
     has_length,
     is_,
 )
+from json import dumps
+from unittest.mock import Mock, patch
 
 from microcosm_resourcesync.endpoints import HTTPEndpoint
 from microcosm_resourcesync.following import FollowMode
@@ -53,7 +52,7 @@ def set_response(mock, *resources):
 
 class TestHTTPEndpoint:
 
-    def setup(self):
+    def setup_method(self):
         self.uri = "http://example.com/api"
         self.endpoint = HTTPEndpoint(self.uri)
 

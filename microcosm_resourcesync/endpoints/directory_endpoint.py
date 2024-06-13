@@ -2,6 +2,7 @@
 Read/write from a directory tree.
 
 """
+from click import ClickException
 from os import walk
 from os.path import (
     exists,
@@ -10,8 +11,6 @@ from os.path import (
     splitext,
 )
 from shutil import rmtree
-
-from click import ClickException
 
 from microcosm_resourcesync.endpoints.base import Endpoint
 from microcosm_resourcesync.formatters import Formatters
@@ -48,7 +47,7 @@ class DirectoryEndpoint(Endpoint):
                     continue
                 _, ext = splitext(filename)
                 formatter = Formatters.for_extension(ext).value
-                with open(join(dirpath, filename), "r") as file_:
+                with open(join(dirpath, filename)) as file_:
                     data = file_.read()
                     dct = formatter.load(data)
                     yield schema_cls(dct)
@@ -63,7 +62,7 @@ class DirectoryEndpoint(Endpoint):
             assert resource.id is not None
 
             dirname = join(self.path, resource.type)
-            basename = "{}{}".format(resource.id, formatter.value.extension)
+            basename = f"{resource.id}{formatter.value.extension}"
             self.mkdir(dirname)
             path = join(dirname, basename)
             with open(path, "w") as file_:
@@ -71,11 +70,11 @@ class DirectoryEndpoint(Endpoint):
 
     def validate_for_read(self, schema_cls, **kwargs):
         if not exists(self.path) or not isdir(self.path):
-            raise ClickException("Not such directory: {}".format(self.path))
+            raise ClickException(f"Not such directory: {self.path}")
 
     def validate_for_write(self, formatter, remove=False, **kwargs):
         if exists(self.path) and not isdir(self.path):
-            raise ClickException("Not a directory: {}".format(self.path))
+            raise ClickException(f"Not a directory: {self.path}")
 
         if exists(self.path) and remove:
             # remove tree

@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 
 project = "microcosm-resourcesync"
-version = "1.0.1"
+version = "2.0.0"
 
 setup(
     name=project,
@@ -23,7 +23,6 @@ setup(
         "requests>=2.18.4",
     ],
     setup_requires=[
-        "nose>=1.3.7",
     ],
     dependency_links=[
     ],
@@ -36,4 +35,23 @@ setup(
         "coverage>=4.3.4",
         "PyHamcrest>=1.9.0",
     ],
+    extras_require={
+        "test": [
+            "coverage>=3.7.1",
+            "PyHamcrest>=1.8.5",
+            "pytest-cov>=3.0.0",
+            "pytest>=6.2.5",
+            "pytest-cov>=5.0.0",
+        ],
+        "lint": [
+            "flake8",
+            "flake8-print",
+            "flake8-isort",
+        ],
+        "typehinting": [
+            "mypy",
+            "types-PyYAML",
+            "types-requests",
+        ],
+    },
 )

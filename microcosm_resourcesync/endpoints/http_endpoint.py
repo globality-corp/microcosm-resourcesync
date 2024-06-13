@@ -2,13 +2,12 @@
 HTTP endpoint.
 
 """
-from os.path import commonprefix
-from sys import stderr
-from urllib.parse import urlparse, urlunparse
-
 from click import echo, progressbar
+from os.path import commonprefix
 from requests import Session
 from requests.exceptions import ConnectionError, HTTPError
+from sys import stderr
+from urllib.parse import urlparse, urlunparse
 
 from microcosm_resourcesync.batching import batched
 from microcosm_resourcesync.endpoints.base import Endpoint
@@ -87,7 +86,7 @@ class HTTPEndpoint(Endpoint):
 
         """
         if verbose:
-            echo("Fetching resource(s) from: {}".format(uri), err=True)
+            echo(f"Fetching resource(s) from: {uri}", err=True)
 
         response = self.session.get(
             uri,
@@ -98,7 +97,7 @@ class HTTPEndpoint(Endpoint):
         )
         # NB: if resources have broken hyperlinks, we can get a 404 here
         if verbose and response.status_code >= 400:
-            echo("Failed fetching resource(s) from: {}: {}".format(uri, response.text))
+            echo(f"Failed fetching resource(s) from: {uri}: {response.text}")
         response.raise_for_status()
         content_type = response.headers["Content-Type"]
         formatter = Formatters.for_content_type(content_type).value
@@ -150,7 +149,7 @@ class HTTPEndpoint(Endpoint):
             raise BatchingNotSupported()
 
         if verbose:
-            echo("Batch updating resource(s) for: {}".format(uri), err=True)
+            echo(f"Batch updating resource(s) for: {uri}", err=True)
 
         data = formatter.value.dump(dict(
             items=resource_batch,
@@ -243,12 +242,12 @@ class HTTPEndpoint(Endpoint):
             try:
                 return func(uri, **kwargs)
             except ConnectionError as error:
-                echo("Connection error for uri: {}: {}".format(uri, error), err=True)
+                echo(f"Connection error for uri: {uri}: {error}", err=True)
                 last_error = error
                 continue
             except HTTPError as error:
                 if error.response.status_code in (504, 502):
-                    echo("HTTP error for uri: {}: {}".format(uri, error), err=True)
+                    echo(f"HTTP error for uri: {uri}: {error}", err=True)
                     last_error = error
                     continue
                 raise
